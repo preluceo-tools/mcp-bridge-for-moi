@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 150" width="950" height="150" font-family="ui-monospace,SFMono-Regular,Consolas,monospace">
+<style>
+  .box{fill:#f6f8fa;stroke:#0d1117;stroke-width:1.5}
+  .t{fill:#0d1117;font-size:17px;font-weight:700}
+  .s{fill:#57606a;font-size:12px;font-style:italic}
+  .l{fill:#5769f7;font-size:12px}
+  .req{stroke:#5769f7;stroke-width:2;stroke-dasharray:6 6;animation:fwd 1s linear infinite}
+  .res{stroke:#57606a;stroke-width:2;stroke-dasharray:6 6;animation:back 1s linear infinite}
+  @keyframes fwd{to{stroke-dashoffset:-12}}
+  @keyframes back{to{stroke-dashoffset:12}}
+</style>
+<rect class="box" x="10" y="40" width="180" height="70" rx="8"/>
+<text class="t" x="100" y="72" text-anchor="middle">AI client</text>
+<text class="s" x="100" y="94" text-anchor="middle">e.g. Claude Code</text>
+<rect class="box" x="260" y="40" width="180" height="70" rx="8"/>
+<text class="t" x="350" y="72" text-anchor="middle">server</text>
+<text class="s" x="350" y="94" text-anchor="middle">Node.js</text>
+<rect class="box" x="510" y="40" width="180" height="70" rx="8"/>
+<text class="t" x="600" y="72" text-anchor="middle">bridge</text>
+<text class="s" x="600" y="94" text-anchor="middle">inside MoI</text>
+<rect class="box" x="760" y="40" width="180" height="70" rx="8"/>
+<text class="t" x="850" y="72" text-anchor="middle">MoI</text>
+<text class="s" x="850" y="94" text-anchor="middle">scripting API</text>
+<line class="req" x1="190" y1="66" x2="260" y2="66"/>
+<line class="res" x1="190" y1="84" x2="260" y2="84"/>
+<text class="l" x="225" y="30" text-anchor="middle">stdio</text>
+<line class="req" x1="440" y1="66" x2="510" y2="66"/>
+<line class="res" x1="440" y1="84" x2="510" y2="84"/>
+<text class="l" x="475" y="30" text-anchor="middle">WebSocket</text>
+<line class="req" x1="690" y1="66" x2="760" y2="66"/>
+<line class="res" x1="690" y1="84" x2="760" y2="84"/>
+<text class="l" x="725" y="30" text-anchor="middle">JS calls</text>
+</svg>
