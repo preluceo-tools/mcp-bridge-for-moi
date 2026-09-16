@@ -1,0 +1,27 @@
+# probe 3 - startup folder .js context (globals)
+ran = yes - the startup folder IS executed
+moi.version = 4.0 Dec-22-2020
+typeof XMLHttpRequest = undefined
+typeof WebSocket = undefined
+typeof setTimeout = undefined
+typeof setInterval = undefined
+typeof window = undefined
+typeof document = undefined
+typeof localStorage = undefined
+typeof fetch = undefined
+typeof moi = function
+typeof JSON = object
+typeof Promise = undefined
+typeof ActiveXObject = undefined
+moi.ui.commandUI = THREW: Operation failed
+moi.ui.mainWindow = function
+moi.ui.mainWindow.htmlWindow = undefined
+moi.ui.mainWindow.htmlDocument = undefined
+moi.ui.sidePane = object
+moi.ui.sidePane.htmlWindow = undefined
+moi.ui.getUIPanels = function
+moi.ui.getUIPanel = function
+moi.ui.createDialog = function
+moi.command.currentCommandName = []
+getAppDataDir = %APPDATA%\Moi\
+getCommandsDir = C:\Program Files\MoI 4.0\commands\

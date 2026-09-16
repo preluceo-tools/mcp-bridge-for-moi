@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.tsbuildinfo
+sample_drawing/
+sample_building_video/
+*.code-workspace
+.scratch/
+.out-of-scope/
+docs/agents/
+docs/architecture-review-*.html
+CLAUDE.md

@@ -1,0 +1,8 @@
+<html><head><script>
+// Probe 3 / question D: does MoI load .htm files from the startup folder at all?
+// If this marker file appears, .htm in startup\ is executed as a page.
+try {
+    var _m = moi.filesystem.openFileStream( moi.filesystem.getAppDataDir() + 'probe3-startup-htm.txt', 'w' );
+    if ( _m ) { _m.writeLine( 'startup .htm parsed. XHR=' + typeof XMLHttpRequest + ' WS=' + typeof WebSocket + ' setTimeout=' + typeof setTimeout ); if ( _m.close ) _m.close(); }
+} catch ( e ) { }
+</script></head><body></body></html>

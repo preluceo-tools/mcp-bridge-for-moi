@@ -1,0 +1,6 @@
+2026-09-08T18:32:37.469Z listening on 127.0.0.1:8765
+2026-09-08T18:32:44.015Z HIT GET /ping?from=curl-precheck origin=- ua=curl/8.16.0
+2026-09-08T18:38:02.238Z HIT GET /ping?from=moi-htm-sync origin=- ua=Mozilla/5.0 (N; Windows NT 10.0; Win64; x64) AppleWebKit/538.1 (KHTML, like Gecko) MoI Safari/538.1
+2026-09-08T18:39:25.804Z HIT GET /ping?from=moi-htm-sync origin=- ua=Mozilla/5.0 (N; Windows NT 10.0; Win64; x64) AppleWebKit/538.1 (KHTML, like Gecko) MoI Safari/538.1
+2026-09-08T18:39:25.861Z UPGRADE /socket origin=moi://commands key=w6IQf+PP67bRZ7Vn87sW+g==
+2026-09-08T18:39:25.894Z HIT POST /report?from=moi-htm-async origin=moi://commands ua=Mozilla/5.0 (N; Windows NT 10.0; Win64; x64) AppleWebKit/538.1 (KHTML, like Gecko) MoI Safari/538.1 body="hello from the MoI HTML page"

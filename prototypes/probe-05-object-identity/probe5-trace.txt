@@ -1,0 +1,71 @@
+## fillet, result captured from the factory before commit
+box P, box Q = Probe5P/667dbfe8/t3 Probe5Q/884014b9/t3
+P.id = {667dbfe8-665e-45e2-81be-3dbe9dba0e66}
+fillet P r=1, capture created pre-commit = created=(1) [Probe5P/24c62d0a/t3] removed=(1) [Probe5P/667dbfe8/t3] input=(1) [Probe5P/667dbfe8/t3]
+db after fillet = (2) [Probe5Q/884014b9/t3 Probe5P/24c62d0a/t3]
+captured R still valid after commit = Probe5P/24c62d0a/t3 inDb=yes
+R.id vs P.id = R={24c62d0a-e289-435e-88d3-125aca3ba3b8} P={667dbfe8-665e-45e2-81be-3dbe9dba0e66} equal=false
+R.name (was P named Probe5P?) = [Probe5P]
+findObject(P.id) - the consumed input = object :: null
+
+# history on the fillet result
+R.getHistoryParents() = (0) []
+R.getHistoryChildren() = (0) []
+R.updateWithHistory = boolean value=false
+R.getHistoryData() = string
+----8<----
+6 fillet V1
+2
+60 objectlist 7 Objects1 {667dbfe8-665e-45e2-81be-3dbe9dba0e66}
+35 double 6 Radius3ff0000000000000 (1)
+
+----8<----
+does R.getHistoryData() contain P.id? = true
+
+## does `id` survive plain property edits?
+R.id before edits = {24c62d0a-e289-435e-88d3-125aca3ba3b8}
+rename R = id same? true
+hide R = id same? true
+restyle R = id same? true
+findObject(rid) still finds it = Probe5Renamed/24c62d0a/t3
+
+## copy - a factory that does NOT consume its input
+Q.id before copy = {884014b9-0955-4236-92ac-ca135f39c9f0}
+copy Q by (0,60,0) = created=(1) [Probe5Q/61dfdc69/t3] removed=(1) [Probe5Q/884014b9/t3] input=(1) [Probe5Q/884014b9/t3]
+db after copy = (3) [Probe5Q/884014b9/t3 Probe5Renamed/24c62d0a/t3 Probe5Q/61dfdc69/t3]
+Q keeps its id? = Q.id={884014b9-0955-4236-92ac-ca135f39c9f0} same=true inDb=yes
+copy has a new id = Probe5Q/61dfdc69/t3 inDb=yes
+Q.getHistoryChildren() - forward link to the copy? = (1) [Probe5Q/61dfdc69/t3]
+COPY.getHistoryParents() = (1) [Probe5Q/884014b9/t3]
+COPY.getHistoryData() contains Q.id? = true
+----8<----
+4 copy V1
+3
+60 objectlist 7 Objects1 {884014b9-0955-4236-92ac-ca135f39c9f0}
+32 point 7 Base pt0 (0) 0 (0) 0 (0)
+50 point 9 Offset pt0 (0) 404e000000000000 (60) 0 (0)
+
+----8<----
+
+## boolean union - which input name does the result inherit?
+boxes S and T (overlapping, distinct names) = Probe5S/2bee388c/t3 Probe5T/95da44de/t3
+booleanunion S+T, capture created pre-commit = created=(1) [Probe5S/f1733af4/t3] removed=(2) [Probe5S/2bee388c/t3 Probe5T/95da44de/t3] input=(2) [Probe5S/2bee388c/t3 Probe5T/95da44de/t3]
+db after union = (4) [Probe5Q/884014b9/t3 Probe5Renamed/24c62d0a/t3 Probe5Q/61dfdc69/t3 Probe5S/f1733af4/t3]
+U identity = Probe5S/f1733af4/t3 inDb=yes id==S false id==T false
+S/T still in db = S=no T=no
+U.getHistoryParents() = (0) []
+U.getHistoryData() - contains S.id? T.id? = S true / T true
+----8<----
+12 booleanunion V1
+1
+99 objectlist 7 Objects2 {2bee388c-cc88-4612-bbd0-448f889cd50b} {95da44de-917f-476d-b095-2efa87cc8b85}
+
+----8<----
+
+## question 5 - stamp our own name at creation time, then address by it
+stamp U = (4) [Probe5Q/884014b9/t3 Probe5Renamed/24c62d0a/t3 Probe5Q/61dfdc69/t3 moi-mcp-0007/f1733af4/t3]
+address it later by id = moi-mcp-0007/f1733af4/t3
+address it later by name (selectNamed) = selected=(1) [moi-mcp-0007/f1733af4/t3]
+clone U - new id? = function :: moi-mcp-0007/23d656f4/t3 sameId=false inDb=no
+
+## done

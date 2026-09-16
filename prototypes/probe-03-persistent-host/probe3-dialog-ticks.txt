@@ -1,0 +1,6 @@
+ticks = 60
+elapsed_ms = 60408
+href = moi://commands/Probe3Tick.htm
+XHR = object
+WebSocket = object
+ws = constructed, readyState=0

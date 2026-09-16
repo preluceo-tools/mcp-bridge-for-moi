@@ -1,0 +1,16 @@
+﻿+1121ms boxes=0 windows=View controls panel | MoI
++2190ms boxes=0 windows=View controls panel | MoI
++3226ms boxes=0 windows=View controls panel | MoI
++4256ms boxes=0 windows=View controls panel | MoI
++5282ms boxes=1 windows=Script error | View controls panel | MoI
++6430ms boxes=1 windows=Script error | View controls panel | MoI
++7459ms boxes=1 windows=Script error | View controls panel | MoI
++8482ms boxes=1 windows=Script error | View controls panel | MoI
++9513ms boxes=1 windows=Script error | View controls panel | MoI
++10548ms boxes=1 windows=Script error | View controls panel | MoI
++11595ms boxes=1 windows=Script error | View controls panel | MoI
++12658ms boxes=1 windows=Script error | View controls panel | MoI
++13695ms boxes=1 windows=Script error | View controls panel | MoI
++14742ms boxes=1 windows=Script error | View controls panel | MoI
++15789ms boxes=1 windows=Script error | View controls panel | MoI
++16827ms boxes=1 windows=Script error | View controls panel | MoI

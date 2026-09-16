@@ -1,0 +1,28 @@
+# probe 4 = clientmode=both url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
+window.onerror installed = yes (returns true)
+addEventListener error = installed
+connect = deferred via sidePane.window.setTimeout(500)
++528ms = constructed, readyState=0
++529ms = handlers assigned
+heartbeat = 1 at +1017ms, readyState=0, allSockets=[0]
+heartbeat = 2 at +2018ms, readyState=0, allSockets=[0]
+heartbeat = 3 at +3018ms, readyState=0, allSockets=[0]
+heartbeat = 4 at +4019ms, readyState=0, allSockets=[0]
+heartbeat = 5 at +5020ms, readyState=0, allSockets=[0]
+heartbeat = 6 at +6021ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7025ms, readyState=0, allSockets=[0]
+heartbeat = 8 at +8026ms, readyState=0, allSockets=[0]
+heartbeat = 9 at +9037ms, readyState=0, allSockets=[0]
+heartbeat = 10 at +10043ms, readyState=0, allSockets=[0]
+heartbeat = 11 at +11046ms, readyState=0, allSockets=[0]
+heartbeat = 12 at +12051ms, readyState=0, allSockets=[0]
+heartbeat = 13 at +13061ms, readyState=0, allSockets=[0]
+heartbeat = 14 at +14066ms, readyState=0, allSockets=[0]
+heartbeat = 15 at +15067ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16074ms, readyState=0, allSockets=[0]

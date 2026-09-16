@@ -1,0 +1,32 @@
+# probe 4 = clientmode=xhrgate url=ws://127.0.0.1:8766/bridge
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++2ms = xhr probe 1 sent to http://127.0.0.1:8766/ping
+connect = gated behind an XHR poll every 2000ms, 8 attempts
++207ms = xhr probe 1 readyState=4 status=200
++207ms = gate OPEN -> constructing WebSocket
++233ms = gated: constructed, readyState=0
++233ms = gated: handlers assigned
++265ms = gated: onopen, readyState=1
++266ms = gated: sent
++267ms = gated: onmessage: HELLO-FROM-SERVER
+heartbeat = 1 at +1015ms, readyState=1, allSockets=[1]
+heartbeat = 2 at +2016ms, readyState=1, allSockets=[1]
+heartbeat = 3 at +3021ms, readyState=1, allSockets=[1]
+heartbeat = 4 at +4031ms, readyState=1, allSockets=[1]
+heartbeat = 5 at +5032ms, readyState=1, allSockets=[1]
+heartbeat = 6 at +6033ms, readyState=1, allSockets=[1]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7045ms, readyState=1, allSockets=[1]
+heartbeat = 8 at +8046ms, readyState=1, allSockets=[1]
+heartbeat = 9 at +9047ms, readyState=1, allSockets=[1]
+heartbeat = 10 at +10062ms, readyState=1, allSockets=[1]
+heartbeat = 11 at +11068ms, readyState=1, allSockets=[1]
+heartbeat = 12 at +12068ms, readyState=1, allSockets=[1]
+heartbeat = 13 at +13069ms, readyState=1, allSockets=[1]
+heartbeat = 14 at +14077ms, readyState=1, allSockets=[1]
+heartbeat = 15 at +15077ms, readyState=1, allSockets=[1]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16078ms, readyState=1, allSockets=[1]

@@ -1,0 +1,43 @@
+<html><head><script>
+// Probe 3 tick page. Loaded by moi.ui.createDialog( 'moi://commands/Probe3Tick.htm' )
+// from a startup script, never shown and never doModal'd. If its timer keeps
+// firing after the startup script returns, this page is a persistent host that
+// does not occupy the command slot.
+(function () {
+    var DIR = moi.filesystem.getAppDataDir();
+    var t0 = ( new Date() ).getTime();
+    var n = 0;
+    var wsState = 'not tried';
+
+    function write() {
+        try {
+            var s = moi.filesystem.openFileStream( DIR + 'probe3-dialog-ticks.txt', 'w' );
+            if ( s ) {
+                s.writeLine( 'ticks = ' + n +
+                             '\nelapsed_ms = ' + ( ( new Date() ).getTime() - t0 ) +
+                             '\nhref = ' + document.location.href +
+                             '\nXHR = ' + typeof XMLHttpRequest +
+                             '\nWebSocket = ' + typeof WebSocket +
+                             '\nws = ' + wsState );
+                if ( s.close ) s.close();
+            }
+        } catch ( e ) { }
+    }
+
+    try {
+        var ws = new WebSocket( 'ws://127.0.0.1:8765/dialog' );
+        ws.onopen  = function () { wsState = 'onopen'; write(); };
+        ws.onerror = function () { wsState = 'onerror (attempt made)'; write(); };
+        ws.onclose = function () { wsState = 'onclose (attempt made)'; write(); };
+        wsState = 'constructed, readyState=' + ws.readyState;
+    } catch ( e ) { wsState = 'THREW: ' + e; }
+
+    function tick() {
+        n++;
+        write();
+        if ( ( new Date() ).getTime() - t0 < 60000 ) setTimeout( tick, 1000 );
+    }
+    write();
+    setTimeout( tick, 1000 );
+})();
+</script></head><body><div>Probe3Tick</div></body></html>

@@ -1,0 +1,5 @@
+2026-09-09T06:15:21.925Z listening mode=wskill on 127.0.0.1:8766
+2026-09-09T06:15:24.699Z OPEN /bridge origin=moi://ui
+2026-09-09T06:15:24.715Z MSG hello from MoI side pane
+2026-09-09T06:15:28.703Z server socket destroy
+2026-09-09T06:15:28.706Z CLIENT CLOSED code=1006 reason=

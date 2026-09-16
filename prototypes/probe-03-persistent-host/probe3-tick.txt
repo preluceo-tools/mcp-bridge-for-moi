@@ -1,0 +1,10 @@
+# probe 3 - persistence test (final)
+createDialog = function
+dialog.htmlWindow = object
+sidePane.window = object
+sidePane.window.setTimeout = function
+sidePane.window.XMLHttpRequest = object
+sidePane.window.WebSocket = object
+sidePane.window.location.href = moi://ui/SidePane.htm
+sidePane timer = scheduled
+sidePane WebSocket = constructed, readyState=0

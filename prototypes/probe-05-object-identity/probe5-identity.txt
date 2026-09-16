@@ -1,0 +1,101 @@
+## question 1 - is there a stable per-object identifier?
+create box A = ok, type=3
+
+# id-like members, probed by name (MoI objects do not enumerate - probe 01)
+  A.id = string value={87103e36-f6e9-4ed8-8710-e9046e657af5}
+  A.objectId = undefined
+  A.objectID = undefined
+  A.objectid = undefined
+  A.Id = string value={87103e36-f6e9-4ed8-8710-e9046e657af5}
+  A.ID = string value={87103e36-f6e9-4ed8-8710-e9046e657af5}
+  A.uid = undefined
+  A.uuid = undefined
+  A.guid = undefined
+  A.handle = undefined
+  A.index = undefined
+  A.objectIndex = undefined
+  A.databaseIndex = undefined
+  A.serialNumber = undefined
+  A.serial = undefined
+  A.getId = undefined
+  A.getObjectId = undefined
+  A.getSerialNumber = undefined
+  A.getUniqueId = undefined
+  A.uniqueId = undefined
+  A.key = undefined
+  A.hash = undefined
+  A.ptr = undefined
+  A.pointer = undefined
+  A.address = undefined
+  A.runtimeId = undefined
+  A.tag = undefined
+  A.userData = undefined
+  A.getUserData = undefined
+  A.setUserData = undefined
+  A.revision = undefined
+  A.objectNumber = undefined
+
+# documented members, for contrast
+  A.type = number value=3
+  A.name = string value=
+  A.selected = boolean value=false
+  A.hidden = boolean value=false
+  A.locked = boolean value=false
+  A.styleIndex = number value=0
+  A.displayMode = number value=0
+  String(A) = [object MoiObj]
+  A.toString = function
+
+# findObject - what does it take and what does it give back?
+  findObject(0) = THREW: Invalid function argument 1
+  findObject(1) = THREW: Invalid function argument 1
+  findObject(-1) = THREW: Invalid function argument 1
+  findObject(999) = THREW: Invalid function argument 1
+  findObject("") = THREW: Invalid function argument 1
+  findObject("Box") = THREW: Invalid function argument 1
+  findObject(A) = THREW: Invalid function argument 1
+  findObject() = THREW: Required function argument 1 (string) missing.
+
+## question 2 - is `name` viable as the identity?
+set A.name = assigned
+read A.name back = [Probe5Alpha]
+name via a fresh getObjects() = [Probe5Alpha]
+create box B, same name = B.name=[Probe5Alpha] A.name=[Probe5Alpha]
+duplicate names allowed? = [0:Probe5Alpha 1:Probe5Alpha]
+selectNamed("Probe5Alpha") = selected count = 2
+rename B unique = [0:Probe5Alpha 1:Probe5Beta]
+findObject("Probe5Alpha") = THREW: Invalid function argument 1
+
+## question 3 - is object ordering stable?
+getObjects() call 1 = [0:Probe5Alpha 1:Probe5Beta]
+getObjects() call 2 = [0:Probe5Alpha 1:Probe5Beta]
+same wrapper across calls? (== ) = a1==a2 -> false ; a1===a2 -> false ; a1==A -> false
+add box C, re-list = [0:Probe5Alpha 1:Probe5Beta 2:Probe5Gamma]
+add box D at front-ish, re-list = [0:Probe5Alpha 1:Probe5Beta 2:Probe5Gamma 3:Probe5Delta]
+delete the middle one (Beta), re-list = [0:Probe5Alpha 1:Probe5Gamma 2:Probe5Delta]
+index of Gamma now = 1
+
+## held JS references - the bridge's own option
+A still usable after all of the above = A.name=[Probe5Alpha] A.type=3
+B (deleted) still usable? = B.name=[Probe5Beta] B.type=3
+is deleted B still in getObjects()? = no
+borrow side pane window = object
+stage 2 scheduled = yes, +4000ms in the side pane window
+
+## +4s, from a side pane timer - held references
+held.A.name = [Probe5Alpha]
+held.A == getObjects().item(0) = false
+set held.A.name from the timer = [0:Probe5AlphaRenamed 1:Probe5Gamma 2:Probe5Delta]
+held.C.name = [Probe5Gamma]
+
+## question 2 continued - does `name` survive save and reopen?
+saveAs = saved to <prototypes>\probe5-names.3dm
+names before fileNew = [0:Probe5AlphaRenamed 1:Probe5Gamma 2:Probe5Delta]
+fileNew = count=0
+open the saved file = count=3
+names after reopen = [0:Probe5AlphaRenamed 1:Probe5Gamma 2:Probe5Delta]
+held.A after reopen - still valid? = [Probe5AlphaRenamed] type=3
+held.A == any reopened object? = no
+findObject("Probe5Gamma") after reopen = THREW: Invalid function argument 1
+
+## done

@@ -1,0 +1,17 @@
+1-refused-naive              server=none      -> BOX x1   windows: Script error | View controls panel | MoI
+1-refused-naive              server=none      -> BOX x1   windows: Script error | View controls panel | MoI
+0-control-nosocket           server=none      -> SILENT   windows: View controls panel | MoI
+1-refused-naive              server=none      -> BOX x1   windows: Script error | View controls panel | MoI
+1b-refused-naive-timed       server=none      -> BOX x1   firstBox=+5369ms peak=1   windows: Script error | View controls panel | MoI
+2-handlersfirst              server=none      -> BOX x1   firstBox=+5282ms peak=1   windows: Script error | View controls panel | MoI
+3-guarded                    server=none      -> BOX x1   firstBox=+5191ms peak=1   windows: Script error | View controls panel | MoI
+4a-wsopen                    server=wsopen    -> SILENT   firstBox=- peak=0   windows: View controls panel | MoI
+4b-wsclose                   server=wsclose   -> SILENT   firstBox=- peak=0   windows: View controls panel | MoI
+4c-wskill                    server=wskill    -> BOX x1   firstBox=+5249ms peak=1   windows: Script error | View controls panel | MoI
+5-deferred                   server=none      -> BOX x1   firstBox=+5381ms peak=1   windows: Script error | View controls panel | MoI
+3b-both                      server=none      -> BOX x1   firstBox=+5162ms peak=1   windows: Script error | View controls panel | MoI
+6a-retry-noteardown          server=none      -> BOX x5   firstBox=+5161ms peak=5   windows: Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
+6b-retry-close               server=none      -> BOX x2   firstBox=+4170ms peak=2   windows: Script error | Script error | View controls panel | MoI
+7a-xhrgate-noserver          server=none      -> SILENT   firstBox=- peak=0   windows: View controls panel | MoI
+7b-xhrgate-server            server=wsopen    -> SILENT   firstBox=- peak=0   windows: View controls panel | MoI
+6c-retry-close-repeat        server=none      -> BOX x2   firstBox=+4120ms peak=2   windows: Script error | Script error | View controls panel | MoI

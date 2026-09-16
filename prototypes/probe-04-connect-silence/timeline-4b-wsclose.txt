@@ -1,0 +1,16 @@
+﻿+1084ms boxes=0 windows=View controls panel | MoI
++2119ms boxes=0 windows=View controls panel | MoI
++3164ms boxes=0 windows=View controls panel | MoI
++4213ms boxes=0 windows=View controls panel | MoI
++5246ms boxes=0 windows=View controls panel | MoI
++6275ms boxes=0 windows=View controls panel | MoI
++7301ms boxes=0 windows=View controls panel | MoI
++8337ms boxes=0 windows=View controls panel | MoI
++9373ms boxes=0 windows=View controls panel | MoI
++10417ms boxes=0 windows=View controls panel | MoI
++11455ms boxes=0 windows=View controls panel | MoI
++12490ms boxes=0 windows=View controls panel | MoI
++13525ms boxes=0 windows=View controls panel | MoI
++14552ms boxes=0 windows=View controls panel | MoI
++15580ms boxes=0 windows=View controls panel | MoI
++16614ms boxes=0 windows=View controls panel | MoI

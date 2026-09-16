@@ -1,0 +1,5 @@
+2026-09-08T19:04:24.809Z listening on 127.0.0.1:8765
+2026-09-08T19:04:26.824Z HIT GET /selftest origin=- ua=curl/8.16.0
+2026-09-08T19:04:32.619Z UPGRADE /sidepane origin=moi://ui key=AxC58Ip23kIKioVPCLCsiQ==
+2026-09-08T19:04:32.773Z UPGRADE /dialog origin=moi://commands key=0R2hj2V50svgDveDxxzMRA==
+2026-09-08T19:07:23.180Z HIT GET / origin=- ua=curl/8.16.0

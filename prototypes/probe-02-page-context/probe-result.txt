@@ -1,0 +1,35 @@
+# MoI probe result (phase2)
+moi.version = 4.0 Dec-22-2020
+moi.majorVersionNumber = 4
+this-is-global typeof = object
+global keys = OUT,X,writeOut,x,w,rec,lines,safe,keysOf,DIR,moi
+typeof XMLHttpRequest = undefined
+typeof WebSocket = undefined
+typeof window = undefined
+typeof document = undefined
+typeof setTimeout = undefined
+typeof setInterval = undefined
+typeof localStorage = undefined
+typeof ActiveXObject = undefined
+typeof JSON = object
+typeof Promise = undefined
+moi.ui exists = function
+moi.ui keys = 
+moi.ui.commandUI = THREW: Operation failed
+moi.ui.commandUI.htmlWindow = THREW: Operation failed
+moi.ui.mainWindow = function
+moi.ui.mainWindow keys = 
+mainWindow.htmlWindow = undefined
+mainWindow.htmlWindow.XMLHttpRequest = no htmlWindow
+mainWindow.htmlWindow.WebSocket = no htmlWindow
+mainWindow.htmlWindow keys = no htmlWindow
+moi.filesystem keys = 
+getTempDir = %TEMP%\
+getAppDataDir = %APPDATA%\Moi\
+getCommandsDir = C:\Program Files\MoI 4.0\commands\
+getProcessDir = C:\Program Files\MoI 4.0\
+getExecutableCommandLineArgs = function -> [object MoiObj]
+shellExecute echo = keys=[] output="HELLO_FROM_CHILD\r\n"
+XHR source = NONE FOUND
+# writer: writeLine
+# notes: stream keys=[]

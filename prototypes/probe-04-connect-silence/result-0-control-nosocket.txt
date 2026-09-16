@@ -1,0 +1,23 @@
+# probe 4 = clientmode=none url=ws://unused
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
+connect = SKIPPED (control case)
+heartbeat = 1 at +1008ms, readyState=none
+heartbeat = 2 at +2009ms, readyState=none
+heartbeat = 3 at +3010ms, readyState=none
+heartbeat = 4 at +4021ms, readyState=none
+heartbeat = 5 at +5024ms, readyState=none
+heartbeat = 6 at +6025ms, readyState=none
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7033ms, readyState=none
+heartbeat = 8 at +8034ms, readyState=none
+heartbeat = 9 at +9034ms, readyState=none
+heartbeat = 10 at +10044ms, readyState=none
+heartbeat = 11 at +11045ms, readyState=none
+heartbeat = 12 at +12050ms, readyState=none
+heartbeat = 13 at +13051ms, readyState=none
+heartbeat = 14 at +14054ms, readyState=none
+heartbeat = 15 at +15055ms, readyState=none
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>

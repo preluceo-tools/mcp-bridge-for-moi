@@ -1,0 +1,8 @@
+# probe 4 = clientmode=retryclose url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++4ms = attempt 1: constructed, readyState=0
++5ms = attempt 1: handlers assigned
+connect = retry loop every 3000ms, 5 attempts, teardown=close() first
+heartbeat = 1 at +1015ms, readyState=0, allSockets=[0]
+heartbeat = 2 at +2016ms, readyState=0, allSockets=[0]

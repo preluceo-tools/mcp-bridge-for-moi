@@ -1,0 +1,19 @@
+[e2e] server up on 56648, waiting for the bridge to dial in...
+[e2e] bridge attached
+
+[e2e] version: OK {"version":"4.0 Dec-22-2020","major":4}
+[e2e] prelude helpers present: OK {"pt":"function","bbox":"function","toJson":"function"}
+[e2e] get_scene (empty doc): OK {"units":"","unitsCode":"No unit system","file":"","objectCount":0,"objects":[]}
+[e2e] get_selection: OK {"units":"","unitsCode":"No unit system","count":0,"objects":[]}
+[e2e] create a box via factory: OK {"ids":["{b90fe025-d5ac-4df5-8518-6c76491f61f9}"],"count":1}
+[e2e] get_scene (after box): OK {"units":"","unitsCode":"No unit system","file":"","objectCount":1,"objects":[{"id":"{b90fe025-d5ac-4df5-8518-6c76491f61f9}","name":"","type":3,"styleIndex":0,"hidden":false,"locked":false,"selected":false,"bbox":{"min":{"x":0,"y":0,"z":0},"max":{"x":10,"y":20,"z":5}}}]}
+[e2e] set_selection: OK {"selected":1,"missing":[]}
+[e2e] get_selection (after select): OK {"units":"","unitsCode":"No unit system","count":1,"objects":[{"id":"{b90fe025-d5ac-4df5-8518-6c76491f61f9}","name":"","type":3,"styleIndex":0,"hidden":false,"locked":false,"selected":true,"bbox":{"min":{"x":0,"y":0,"z":0},"max":{"x":10,"y":20,"z":5}}}]}
+[e2e] delete_objects: OK {"removed":["{b90fe025-d5ac-4df5-8518-6c76491f61f9}"],"missing":[]}
+[e2e] findObject on a dead id returns null: OK true
+[e2e] error path: a throwing script: FAIL [moi_error] deliberate
+[e2e] scene is empty again: OK {"units":"","unitsCode":"No unit system","file":"","objectCount":0,"objects":[]}
+
+[e2e] closing MoI
+[e2e] exit call returned: The MoI session disconnected mid-call.
+[e2e] done

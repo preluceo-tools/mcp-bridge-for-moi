@@ -1,0 +1,125 @@
+probe-08 — moi.view.screenshot, run 2026-09-09 against MoI 4.0 Dec-22-2020 on Windows 11,
+through the live bridge.
+
+--- 1. the symbol ---------------------------------------------------------------------
+
+{
+  "version": "4.0 Dec-22-2020",
+  "hasView": "function",
+  "screenshotType": "function",
+  "viewToString": "[object MoiObj]",
+  "screenshotToString": "[object MoiObj]",
+  "activeViewport": "[object MoiObj]"
+}
+
+Control names on moi.view, to prove the binding is not returning a stub for everything:
+
+{
+  "screenshot": "function",
+  "saveImage": "undefined",
+  "captureImage": "undefined",
+  "width": "undefined",
+  "height": "undefined",
+  "viewport": "undefined",
+  "getViewport": "undefined",
+  "numViewports": "undefined"
+}
+
+Its place in moi_lib.dll's method table (UTF-16, offset 15911650), which is also the whole
+of the moi.view group:
+
+  ... projectToCPlaneAll, projectToCPlaneOrtho, resetAll, getBackgroundImages,
+      screenshot, resetCPlane, axisLabels, getCPlane, setCPlaneInteractive, setCPlane,
+      spinInteractive ...
+
+No stock command script mentions it: grepping C:\Program Files\MoI 4.0\commands for
+"screenshot" returns nothing.
+
+--- 2. arguments and return value -----------------------------------------------------
+
+  moi.view.screenshot()
+  -> "Required function argument 1 (string) missing."
+
+  moi.view.screenshot( '3D' )
+  -> [object MoiObj]
+
+Members of the returned object:
+
+{
+  "save": "function",
+  "saveAs": "undefined", "saveToFile": "undefined", "write": "undefined",
+  "writeToFile": "undefined", "toDataURL": "undefined", "toBase64": "undefined",
+  "data": "undefined", "bytes": "undefined", "width": "undefined",
+  "height": "undefined", "size": "undefined", "format": "undefined",
+  "isNull": "undefined", "valid": "undefined", "length": "undefined",
+  "getWidth": "undefined", "getHeight": "undefined", "close": "undefined",
+  "destroy": "undefined", "copy": "undefined", "scaled": "undefined"
+}
+
+JSON.stringify( img ) -> undefined. save( path ) is the only way out.
+
+--- 3. which viewport ------------------------------------------------------------------
+
+Every one of these wrote a file. Dimensions, from the PNG headers:
+
+  screenshot( '3D'     ).save(...)  ->  386 x 465    116779 bytes
+  screenshot( 'Top'    ).save(...)  ->  386 x 465     21375 bytes
+  screenshot( 'Front'  ).save(...)  ->  386 x 466     28170 bytes
+  screenshot( 'Right'  ).save(...)  ->  386 x 466     22285 bytes
+  screenshot( '3d'     ).save(...)  ->  386 x 465    116779 bytes   (byte-identical to '3D')
+  screenshot( 'bogus'  ).save(...)  ->  982 x 1000   248053 bytes
+  screenshot( ''       ).save(...)  ->  982 x 1000   248007 bytes
+  screenshot( 'window' ).save(...)  ->  982 x 1000   248007 bytes
+  screenshot( 'All'    ).save(...)  ->  982 x 1000   248007 bytes
+
+982 x 1000 is the whole MoI window: four panes, toolbar, side pane. See probe08-window.png.
+
+  moi.ui.getActiveViewport().name  ->  "3D"
+  moi.ui.getLastClickedViewport()  ->  null   ("null is not an object")
+
+--- 4. size and format ------------------------------------------------------------------
+
+  screenshot( '3D', 800, 600 )  ->  386 x 465, 116779 bytes — byte-identical to the
+                                    one-argument call. Extra arguments are ignored.
+
+  save( '...\probe08-3D.jpg' )  ->  a real JPEG (ff d8 magic), 21312 bytes.
+                                    The format comes from the extension.
+
+--- 5. failure modes ---------------------------------------------------------------------
+
+  screenshot( '3D' ).save( '<a folder that does not exist>\x.png' )
+  -> returned null, wrote nothing, threw nothing.
+
+save() returns null on success too, so its return value carries no information at all.
+
+--- 6. a window on screen ----------------------------------------------------------------
+
+  moi.ui.mainWindow.minimize()
+  moi.ui.mainWindow.isMinimized      ->  true
+  screenshot( '3D' ).save( ... )     ->  wrote a file: 386 x 465, 622 bytes
+  moi.ui.mainWindow.restore()
+
+622 bytes is a blank frame; the same shot with the window on screen is 92985. No error, no
+exception, no clue. See probe08-minimized.png.
+
+--- 7. view changes are animated ----------------------------------------------------------
+
+With a 40 x 30 x 20 box in the document:
+
+  moi.view.resetAll();
+  moi.ui.redrawViewports();
+  screenshot( '3D' ).save( ... )   ->  probe08-3d-midanimation.png — camera mid-flight,
+                                       box cut off at the frame edge
+
+  ... then, in a LATER bridge call:
+
+  screenshot( '3D' ).save( ... )   ->  probe08-3d-settled.png — the whole box, framed
+
+The zoom animates and the script has no way to wait for it: the script host has no timers,
+eval is synchronous, and a busy-wait blocks the UI thread the animation runs on.
+
+--- 8. no modal dialog ---------------------------------------------------------------------
+
+Not once, across every call above, did screenshot() or save() raise a dialog. The bridge was
+parked in the side pane with no command running throughout, and every call returned inside
+the 30s timeout.

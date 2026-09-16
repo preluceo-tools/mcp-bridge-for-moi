@@ -1,0 +1,80 @@
+## obj.id - run A found it; is it stable and is it findObject's key?
+box A = Probe5A/4a1d310a/t3 full id={4a1d310a-d08f-449f-978d-7d99722a10cb}
+box E = Probe5E/af272dfa/t3 full id={af272dfa-1bf6-48ad-9796-c39c5042f024}
+A.id read twice off the same wrapper = true {4a1d310a-d08f-449f-978d-7d99722a10cb}
+A.id vs a fresh getObjects() wrapper = wrapper == A -> false ; id equal -> true ; {4a1d310a-d08f-449f-978d-7d99722a10cb}
+ids are distinct between A and E = true
+is A.id writable? = after assign = {4a1d310a-d08f-449f-978d-7d99722a10cb} (was {4a1d310a-d08f-449f-978d-7d99722a10cb})
+
+# findObject wants a string - is that string the id?
+findObject(A.id) = function :: [object MoiObj] -> Probe5A/4a1d310a/t3
+findObject(A.id without braces) = function :: [object MoiObj]
+findObject(name) = THREW: Invalid function argument 1
+findObject(unknown guid) = object :: null
+
+## question 4 - what identity survives an operation?
+
+# 4a. move - does it edit in place or replace?
+before move = (2) [Probe5A/4a1d310a/t3 Probe5E/af272dfa/t3]
+move E by (0,40,0) = inputObjects=(1) [Probe5E/af272dfa/t3] created=(1) [Probe5E/9de97509/t3] removed=(1) [Probe5E/af272dfa/t3]
+after move = (2) [Probe5A/4a1d310a/t3 Probe5E/9de97509/t3]
+E.id unchanged by move? = {af272dfa-1bf6-48ad-9796-c39c5042f024}
+
+# 4b. fillet - the consuming case
+A before fillet = Probe5A/4a1d310a/t3
+fillet A radius 1 = update ok
+fillet, pre-commit inputObjects = (1) [Probe5A/4a1d310a/t3]
+fillet, pre-commit createdObjects = (1) [Probe5A/ad9a2e9a/t3]
+fillet, pre-commit removedObjects = (1) [Probe5A/4a1d310a/t3]
+fillet, pre-commit uiObjects = (0) []
+fillet commit = ok
+fillet, POST-commit createdObjects = (0) []
+fillet, POST-commit removedObjects = (0) []
+fillet, POST-commit inputObjects = (1) [Probe5A/4a1d310a/t3]
+db after fillet = (2) [Probe5E/9de97509/t3 Probe5A/ad9a2e9a/t3]
+A (the input wrapper) after fillet = Probe5A/4a1d310a/t3 ; still in db? no
+the fillet result object = Probe5E/9de97509/t3
+result id == A id? = false
+result name == A name? = [Probe5E] vs [Probe5A]
+
+# 4c. history members on the fillet result
+  R.getHistoryChildren = function called -> function :: [object MoiObj] (0) []
+  R.getHistoryParents = function called -> function :: [object MoiObj] (0) []
+  R.getHistoryData = function called -> string :: 4 move V1
+3
+60 objectlist 7 Objects1 {af272dfa-1bf6-48ad-9796-c39c5042f024}
+32 point 7 Base pt0 (0) 0 (0) 0 (0)
+50 point 9 Offset pt0 (0) 4044000000000000 (40) 0 (0)
+ THREW: TypeError: undefined is not a constructor (evaluating 'l.item( i )')
+  R.updateWithHistory = boolean called THREW: TypeError: false is not a constructor (evaluating 'R[nm]()')
+  R.deleteHistoryData = function called -> object :: null
+  R.getHistoryData() members = null
+
+# 4d. boolean union - two named inputs, one output
+boxes F and G (overlapping) = Probe5F/abc85425/t3 Probe5G/c0b215e5/t3
+booleanunion F+G = inputObjects=(2) [Probe5F/abc85425/t3 Probe5G/c0b215e5/t3] created=(1) [Probe5F/a0c428ec/t3] removed=(2) [Probe5F/abc85425/t3 Probe5G/c0b215e5/t3]
+union commit = ok
+union POST-commit created = (0) []
+union POST-commit removed = (0) []
+db after union = (3) [Probe5E/9de97509/t3 Probe5A/ad9a2e9a/t3 Probe5F/a0c428ec/t3]
+F and G still in db? = F no / G no
+union result identity = no created objects post-commit
+union result history parents = THREW: TypeError: null is not an object (evaluating 'U.getHistoryParents')
+
+## question 5 - can the bridge stamp identity on getCreatedObjects() after commit?
+stamp a name on the union result = (3) [Probe5E/9de97509/t3 Probe5A/ad9a2e9a/t3 Probe5F/a0c428ec/t3]
+stamped name readable from a fresh getObjects() = NO
+stamp a style index too = THREW: Invalid index: 0   length = 0
+stage 2 scheduled = yes
+
+## does `id` survive save and reopen?
+ids before save = Probe5E={9de97509-8190-4c6c-98d5-053427606a1f} | Probe5A={ad9a2e9a-d41d-4612-aa9b-96a33183c6a4} | Probe5F={a0c428ec-7e72-4fe0-b852-4722a2227170}
+saveAs = saved to <prototypes>\probe5-history.3dm
+fileNew = count=0
+open = count=3
+ids after reopen = Probe5E={9171b631-4cff-4719-8630-86b4c4b5c54b} | Probe5A={488fa5f4-d9eb-40eb-9f93-0123e468edf3} | Probe5F={50317158-7eb3-44b8-a090-aab7f56f42aa}
+ids identical across save/reopen? = false
+findObject(old id) after reopen = THREW: Invalid function argument 1
+history survives reopen? R.getHistoryParents() = stamped object not found
+
+## done

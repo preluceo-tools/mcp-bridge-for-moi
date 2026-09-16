@@ -1,0 +1,22 @@
+﻿+1145ms boxes=0 windows=View controls panel | MoI
++2198ms boxes=0 windows=View controls panel | MoI
++3230ms boxes=0 windows=View controls panel | MoI
++4265ms boxes=0 windows=View controls panel | MoI
++5300ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++6325ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++7353ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++8383ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++9410ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++10438ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++11463ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++12490ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++13517ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++14541ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++15568ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++16599ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++17628ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++18657ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++19689ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++20712ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++21738ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI
++22766ms boxes=0 windows=View controls panel | probe5-names.3dm - MoI

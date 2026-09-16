@@ -1,0 +1,25 @@
+﻿+1036ms boxes=0 windows=View controls panel | MoI
++2078ms boxes=0 windows=View controls panel | MoI
++3101ms boxes=0 windows=View controls panel | MoI
++4136ms boxes=0 windows=View controls panel | MoI
++5161ms boxes=1 windows=Script error | View controls panel | MoI
++6385ms boxes=1 windows=Script error | View controls panel | MoI
++7449ms boxes=1 windows=Script error | View controls panel | MoI
++8496ms boxes=2 windows=Script error | Script error | View controls panel | MoI
++9536ms boxes=2 windows=Script error | Script error | View controls panel | MoI
++10586ms boxes=3 windows=Script error | Script error | Script error | View controls panel | MoI
++11612ms boxes=3 windows=Script error | Script error | Script error | View controls panel | MoI
++12644ms boxes=3 windows=Script error | Script error | Script error | View controls panel | MoI
++13686ms boxes=4 windows=Script error | Script error | Script error | Script error | View controls panel | MoI
++14735ms boxes=4 windows=Script error | Script error | Script error | Script error | View controls panel | MoI
++15774ms boxes=4 windows=Script error | Script error | Script error | Script error | View controls panel | MoI
++16809ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++17840ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++18882ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++19923ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++20967ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++22011ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++23043ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++24084ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++25128ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI
++26164ms boxes=5 windows=Script error | Script error | Script error | Script error | Script error | View controls panel | MoI

@@ -1,0 +1,41 @@
+{
+  "name": "mcp-bridge-for-moi",
+  "version": "0.1.0",
+  "description": "An MCP server that lets an agent inspect and model in a live MoI3D v4 session.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "bin": {
+    "mcp-bridge-for-moi": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "!dist/fake-moi.*",
+    "!dist/sandbox.*",
+    "!dist/es5.*",
+    "!dist/*.test.*",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test \"dist/*.test.js\"",
+    "e2e": "npm run build && node dist/e2e.js",
+    "e2e:factories": "npm run build && node dist/e2e-factories.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.12",
+    "acorn": "^8.18.0",
+    "typescript": "^5.6.0"
+  }
+}

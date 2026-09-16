@@ -1,0 +1,38 @@
+# probe 4 = clientmode=retry url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++4ms = attempt 1: constructed, readyState=0
++4ms = attempt 1: handlers assigned
+connect = retry loop every 3000ms, 5 attempts, teardown=none
+heartbeat = 1 at +1011ms, readyState=0, allSockets=[0]
+heartbeat = 2 at +2012ms, readyState=0, allSockets=[0]
++3016ms = attempt 2: constructed, readyState=0
++3016ms = attempt 2: handlers assigned
+heartbeat = 3 at +3016ms, readyState=0, allSockets=[0,0]
+heartbeat = 4 at +4035ms, readyState=0, allSockets=[0,0]
+heartbeat = 5 at +5036ms, readyState=0, allSockets=[0,0]
++6017ms = attempt 3: constructed, readyState=0
++6018ms = attempt 3: handlers assigned
+heartbeat = 6 at +6036ms, readyState=0, allSockets=[0,0,0]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7039ms, readyState=0, allSockets=[0,0,0]
+heartbeat = 8 at +8052ms, readyState=0, allSockets=[0,0,0]
++9028ms = attempt 4: constructed, readyState=0
++9028ms = attempt 4: handlers assigned
+heartbeat = 9 at +9057ms, readyState=0, allSockets=[0,0,0,0]
+heartbeat = 10 at +10058ms, readyState=0, allSockets=[0,0,0,0]
+heartbeat = 11 at +11069ms, readyState=0, allSockets=[0,0,0,0]
++12050ms = attempt 5: constructed, readyState=0
++12051ms = attempt 5: handlers assigned
+heartbeat = 12 at +12070ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 13 at +13071ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 14 at +14072ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 15 at +15073ms, readyState=0, allSockets=[0,0,0,0,0]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16076ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 17 at +17077ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 18 at +18079ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 19 at +19081ms, readyState=0, allSockets=[0,0,0,0,0]
+heartbeat = 20 at +20082ms, readyState=0, allSockets=[0,0,0,0,0]

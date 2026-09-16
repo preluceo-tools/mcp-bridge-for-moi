@@ -1,0 +1,136 @@
+<html>
+	<head>
+		<script>
+			// Marker written the instant this script is parsed, so we can tell
+			// "the page never loaded" apart from "the probe threw".
+			try {
+				var _m = moi.filesystem.openFileStream(
+					'<scratch folder>\\moiprobe\\probe2-marker.txt', 'w' );
+				if ( _m ) { _m.writeLine( 'head script parsed, moi=' + typeof moi ); if ( _m.close ) _m.close(); }
+			} catch ( e ) { }
+		</script>
+	</head>
+
+	<body class="DialogBody">
+
+		<div>NetProbe2</div>
+
+		<script>
+			// Probe 2: does a MoI HTML page - a genuine WebKit document context,
+			// unlike the command-line script host - have networking?
+			// Runs at parse time, not on load, so nothing depends on onload firing.
+			// Touches no geometry and changes no settings.
+
+			var DIR = '<scratch folder>\\moiprobe\\';
+			var OUT = DIR + 'probe2-result.txt';
+
+			var lines = [];
+
+			function rec( key, val ) { lines.push( key + ' = ' + val ); }
+
+			function safe( label, fn )
+			{
+				try { rec( label, fn() ); }
+				catch ( e ) { rec( label, 'THREW: ' + e ); }
+			}
+
+			function writeOut( tag )
+			{
+				try
+				{
+					var s = moi.filesystem.openFileStream( OUT, 'w' );
+					if ( s )
+					{
+						s.writeLine( ['# MoI probe 2 - HTML page context (' + tag + ')'].concat( lines ).join( '\n' ) );
+						if ( s.close ) s.close();
+					}
+				}
+				catch ( e ) { }
+			}
+
+			try
+			{
+				rec( 'moi.version', moi.version );
+				rec( 'typeof window', typeof window );
+				rec( 'typeof document', typeof document );
+				safe( 'document.location.href', function () { return document.location.href; } );
+				safe( 'document.domain', function () { return document.domain; } );
+				safe( 'navigator.userAgent', function () { return navigator.userAgent; } );
+
+				rec( 'typeof XMLHttpRequest', typeof XMLHttpRequest );
+				rec( 'typeof WebSocket', typeof WebSocket );
+				rec( 'typeof fetch', typeof fetch );
+				rec( 'typeof setTimeout', typeof setTimeout );
+				rec( 'typeof localStorage', typeof localStorage );
+				rec( 'typeof Worker', typeof Worker );
+				rec( 'typeof Blob', typeof Blob );
+				rec( 'typeof FileReader', typeof FileReader );
+
+				writeOut( 'globals' );
+
+				// Synchronous XHR to the local probe server.
+				if ( typeof XMLHttpRequest !== 'undefined' )
+				{
+					try
+					{
+						var x = new XMLHttpRequest();
+						x.open( 'GET', 'http://127.0.0.1:8765/ping?from=moi-htm-sync', false );
+						x.send( null );
+						rec( 'sync XHR status', x.status );
+						rec( 'sync XHR responseText', x.responseText );
+					}
+					catch ( e ) { rec( 'sync XHR', 'THREW: ' + e ); }
+
+					writeOut( 'after-sync-xhr' );
+
+					// Asynchronous XHR - the shape a real bridge would use.
+					try
+					{
+						var a = new XMLHttpRequest();
+						a.open( 'POST', 'http://127.0.0.1:8765/report?from=moi-htm-async', true );
+						a.onreadystatechange = function ()
+						{
+							if ( a.readyState == 4 )
+							{
+								rec( 'async XHR status', a.status );
+								rec( 'async XHR responseText', a.responseText );
+								writeOut( 'async-done' );
+							}
+						};
+						a.send( 'hello from the MoI HTML page' );
+						rec( 'async XHR', 'sent' );
+					}
+					catch ( e ) { rec( 'async XHR', 'THREW: ' + e ); }
+				}
+
+				// WebSocket - the server does not complete the handshake, but an
+				// upgrade request in its log proves the attempt was allowed out.
+				if ( typeof WebSocket !== 'undefined' )
+				{
+					try
+					{
+						var ws = new WebSocket( 'ws://127.0.0.1:8765/socket' );
+						ws.onopen = function () { rec( 'WebSocket', 'onopen fired' ); writeOut( 'ws-open' ); };
+						ws.onerror = function () { rec( 'WebSocket', 'onerror fired (attempt was made)' ); writeOut( 'ws-error' ); };
+						ws.onclose = function () { rec( 'WebSocket', 'onclose fired (attempt was made)' ); writeOut( 'ws-close' ); };
+						rec( 'WebSocket ctor', 'ok, readyState=' + ws.readyState );
+					}
+					catch ( e ) { rec( 'WebSocket ctor', 'THREW: ' + e ); }
+				}
+
+				writeOut( 'phase1' );
+
+				if ( typeof setTimeout !== 'undefined' )
+				{
+					setTimeout( function () { writeOut( 'final' ); try { moi.exit( true ); } catch ( e ) { } }, 5000 );
+				}
+			}
+			catch ( outer )
+			{
+				rec( 'OUTER', 'THREW: ' + outer );
+				writeOut( 'outer-throw' );
+			}
+		</script>
+
+	</body>
+</html>

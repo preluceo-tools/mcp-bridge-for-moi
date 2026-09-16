@@ -1,0 +1,29 @@
+# probe 4 = clientmode=naive url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++5ms = constructed, readyState=0
++6ms = handlers assigned
+heartbeat = 1 at +1026ms, readyState=0
+heartbeat = 2 at +2027ms, readyState=0
+heartbeat = 3 at +3028ms, readyState=0
+heartbeat = 4 at +4028ms, readyState=0
+heartbeat = 5 at +5029ms, readyState=0
+heartbeat = 6 at +6029ms, readyState=0
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7042ms, readyState=0
+heartbeat = 8 at +8042ms, readyState=0
+heartbeat = 9 at +9043ms, readyState=0
+heartbeat = 10 at +10060ms, readyState=0
+heartbeat = 11 at +11060ms, readyState=0
+heartbeat = 12 at +12061ms, readyState=0
+heartbeat = 13 at +13061ms, readyState=0
+heartbeat = 14 at +14063ms, readyState=0
+heartbeat = 15 at +15076ms, readyState=0
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16077ms, readyState=0
+heartbeat = 17 at +17088ms, readyState=0
+heartbeat = 18 at +18089ms, readyState=0
+heartbeat = 19 at +19091ms, readyState=0
+heartbeat = 20 at +20092ms, readyState=0

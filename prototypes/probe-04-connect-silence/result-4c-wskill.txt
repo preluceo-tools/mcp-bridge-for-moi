@@ -1,0 +1,28 @@
+# probe 4 = clientmode=naive url=ws://127.0.0.1:8766/bridge
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++6ms = constructed, readyState=0
++7ms = handlers assigned
++205ms = onopen, readyState=1
++206ms = sent
++207ms = onmessage: HELLO-FROM-SERVER
+heartbeat = 1 at +1019ms, readyState=1, allSockets=[1]
+heartbeat = 2 at +2020ms, readyState=1, allSockets=[1]
+heartbeat = 3 at +3021ms, readyState=1, allSockets=[1]
+heartbeat = 4 at +4029ms, readyState=1, allSockets=[1]
+heartbeat = 5 at +5034ms, readyState=1, allSockets=[1]
+heartbeat = 6 at +6036ms, readyState=1, allSockets=[1]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7047ms, readyState=1, allSockets=[1]
+heartbeat = 8 at +8047ms, readyState=1, allSockets=[1]
+heartbeat = 9 at +9053ms, readyState=1, allSockets=[1]
+heartbeat = 10 at +10054ms, readyState=1, allSockets=[1]
+heartbeat = 11 at +11060ms, readyState=1, allSockets=[1]
+heartbeat = 12 at +12061ms, readyState=1, allSockets=[1]
+heartbeat = 13 at +13062ms, readyState=1, allSockets=[1]
+heartbeat = 14 at +14063ms, readyState=1, allSockets=[1]
+heartbeat = 15 at +15064ms, readyState=1, allSockets=[1]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16065ms, readyState=1, allSockets=[1]

@@ -1,0 +1,5 @@
+2026-09-09T06:14:59.404Z listening mode=wsclose on 127.0.0.1:8766
+2026-09-09T06:15:02.154Z OPEN /bridge origin=moi://ui
+2026-09-09T06:15:02.172Z MSG hello from MoI side pane
+2026-09-09T06:15:06.169Z server close(1000)
+2026-09-09T06:15:06.175Z CLIENT CLOSED code=1005 reason=

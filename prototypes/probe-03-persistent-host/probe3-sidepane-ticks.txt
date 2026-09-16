@@ -1,0 +1,2 @@
+ticks = 40
+elapsed_ms = 40267

@@ -1,0 +1,26 @@
+# probe 4 = clientmode=deferred url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
+connect = deferred via sidePane.window.setTimeout(500)
++505ms = constructed, readyState=0
++505ms = handlers assigned
+heartbeat = 1 at +1001ms, readyState=0, allSockets=[0]
+heartbeat = 2 at +2002ms, readyState=0, allSockets=[0]
+heartbeat = 3 at +3019ms, readyState=0, allSockets=[0]
+heartbeat = 4 at +4022ms, readyState=0, allSockets=[0]
+heartbeat = 5 at +5024ms, readyState=0, allSockets=[0]
+heartbeat = 6 at +6025ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7032ms, readyState=0, allSockets=[0]
+heartbeat = 8 at +8036ms, readyState=0, allSockets=[0]
+heartbeat = 9 at +9041ms, readyState=0, allSockets=[0]
+heartbeat = 10 at +10042ms, readyState=0, allSockets=[0]
+heartbeat = 11 at +11042ms, readyState=0, allSockets=[0]
+heartbeat = 12 at +12043ms, readyState=0, allSockets=[0]
+heartbeat = 13 at +13044ms, readyState=0, allSockets=[0]
+heartbeat = 14 at +14044ms, readyState=0, allSockets=[0]
+heartbeat = 15 at +15045ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16046ms, readyState=0, allSockets=[0]

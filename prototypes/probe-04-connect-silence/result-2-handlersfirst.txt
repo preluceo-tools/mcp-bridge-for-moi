@@ -1,0 +1,27 @@
+# probe 4 = clientmode=handlersfirst url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++3ms = handlers bound BEFORE any other property touch
++4ms = constructed, readyState=0
++4ms = handlers assigned
+heartbeat = 1 at +1008ms, readyState=0, allSockets=[0]
+heartbeat = 2 at +2014ms, readyState=0, allSockets=[0]
+heartbeat = 3 at +3015ms, readyState=0, allSockets=[0]
+heartbeat = 4 at +4017ms, readyState=0, allSockets=[0]
+heartbeat = 5 at +5018ms, readyState=0, allSockets=[0]
+heartbeat = 6 at +6018ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 7 at +7033ms, readyState=0, allSockets=[0]
+heartbeat = 8 at +8033ms, readyState=0, allSockets=[0]
+heartbeat = 9 at +9035ms, readyState=0, allSockets=[0]
+heartbeat = 10 at +10039ms, readyState=0, allSockets=[0]
+heartbeat = 11 at +11049ms, readyState=0, allSockets=[0]
+heartbeat = 12 at +12050ms, readyState=0, allSockets=[0]
+heartbeat = 13 at +13051ms, readyState=0, allSockets=[0]
+heartbeat = 14 at +14051ms, readyState=0, allSockets=[0]
+heartbeat = 15 at +15059ms, readyState=0, allSockets=[0]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16060ms, readyState=0, allSockets=[0]
+heartbeat = 17 at +17061ms, readyState=0, allSockets=[0]

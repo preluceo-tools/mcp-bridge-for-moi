@@ -1,0 +1,4 @@
+2026-09-09T06:19:09.938Z listening mode=wsopen on 127.0.0.1:8766
+2026-09-09T06:19:12.289Z HTTP GET /ping
+2026-09-09T06:19:12.519Z OPEN /bridge origin=moi://ui
+2026-09-09T06:19:12.523Z MSG hello from MoI side pane

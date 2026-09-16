@@ -1,0 +1,14 @@
+<html><head><script>
+// Probe 3 host page. Writes a marker the instant it is parsed, so a marker file
+// proves the page really loaded (and in which context) rather than the dialog
+// object merely being constructed.
+try {
+    var _m = moi.filesystem.openFileStream( moi.filesystem.getAppDataDir() + 'probe3-hostpage.txt', 'a' );
+    if ( !_m ) _m = moi.filesystem.openFileStream( moi.filesystem.getAppDataDir() + 'probe3-hostpage.txt', 'w' );
+    if ( _m ) {
+        _m.writeLine( 'Probe3Host.htm parsed. href=' + ( typeof document != 'undefined' ? document.location.href : 'no document' ) +
+                      ' XHR=' + typeof XMLHttpRequest + ' WS=' + typeof WebSocket + ' setTimeout=' + typeof setTimeout );
+        if ( _m.close ) _m.close();
+    }
+} catch ( e ) { }
+</script></head><body><div>Probe3Host</div></body></html>

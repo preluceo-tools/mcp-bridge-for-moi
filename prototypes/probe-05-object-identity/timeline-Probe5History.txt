@@ -1,0 +1,25 @@
+﻿+1121ms boxes=0 windows=MoI
++2185ms boxes=0 windows=MoI
++3223ms boxes=0 windows=MoI
++4255ms boxes=0 windows=MoI
++5285ms boxes=0 windows=probe5-history.3dm - MoI
++6313ms boxes=0 windows=probe5-history.3dm - MoI
++7338ms boxes=0 windows=probe5-history.3dm - MoI
++8367ms boxes=0 windows=probe5-history.3dm - MoI
++9391ms boxes=0 windows=probe5-history.3dm - MoI
++10425ms boxes=0 windows=probe5-history.3dm - MoI
++11460ms boxes=0 windows=probe5-history.3dm - MoI
++12488ms boxes=0 windows=probe5-history.3dm - MoI
++13513ms boxes=0 windows=probe5-history.3dm - MoI
++14541ms boxes=0 windows=probe5-history.3dm - MoI
++15566ms boxes=0 windows=probe5-history.3dm - MoI
++16596ms boxes=0 windows=probe5-history.3dm - MoI
++17621ms boxes=0 windows=probe5-history.3dm - MoI
++18653ms boxes=0 windows=probe5-history.3dm - MoI
++19681ms boxes=0 windows=probe5-history.3dm - MoI
++20706ms boxes=0 windows=probe5-history.3dm - MoI
++21733ms boxes=0 windows=probe5-history.3dm - MoI
++22759ms boxes=0 windows=probe5-history.3dm - MoI
++23790ms boxes=0 windows=probe5-history.3dm - MoI
++24828ms boxes=0 windows=probe5-history.3dm - MoI
++25865ms boxes=0 windows=probe5-history.3dm - MoI

@@ -1,0 +1,36 @@
+# probe 4 = clientmode=xhrgate url=ws://127.0.0.1:59999/none
+sidePane.window = object
+sidePane href = moi://ui/SidePane.htm
++6ms = xhr probe 1 sent to http://127.0.0.1:59999/ping
+connect = gated behind an XHR poll every 2000ms, 8 attempts
+heartbeat = 1 at +1012ms, readyState=none, allSockets=[none]
+heartbeat = 2 at +2013ms, readyState=none, allSockets=[none]
+heartbeat = 3 at +3023ms, readyState=none, allSockets=[none]
+heartbeat = 4 at +4024ms, readyState=none, allSockets=[none]
++4100ms = xhr probe 1 readyState=4 status=0
+heartbeat = 5 at +5024ms, readyState=none, allSockets=[none]
+heartbeat = 6 at +6025ms, readyState=none, allSockets=[none]
+moi.getLog() at beat 6 = <<<Init.cpp 310: Moi starting up
+>>>
++6103ms = xhr probe 2 sent to http://127.0.0.1:59999/ping
+heartbeat = 7 at +7030ms, readyState=none, allSockets=[none]
+heartbeat = 8 at +8032ms, readyState=none, allSockets=[none]
+heartbeat = 9 at +9039ms, readyState=none, allSockets=[none]
+heartbeat = 10 at +10049ms, readyState=none, allSockets=[none]
++10144ms = xhr probe 2 readyState=4 status=0
+heartbeat = 11 at +11055ms, readyState=none, allSockets=[none]
+heartbeat = 12 at +12055ms, readyState=none, allSockets=[none]
++12146ms = xhr probe 3 sent to http://127.0.0.1:59999/ping
+heartbeat = 13 at +13062ms, readyState=none, allSockets=[none]
+heartbeat = 14 at +14066ms, readyState=none, allSockets=[none]
+heartbeat = 15 at +15066ms, readyState=none, allSockets=[none]
+moi.getLog() at beat 15 = <<<Init.cpp 310: Moi starting up
+>>>
+heartbeat = 16 at +16068ms, readyState=none, allSockets=[none]
++16239ms = xhr probe 3 readyState=4 status=0
+heartbeat = 17 at +17071ms, readyState=none, allSockets=[none]
+heartbeat = 18 at +18071ms, readyState=none, allSockets=[none]
++18242ms = xhr probe 4 sent to http://127.0.0.1:59999/ping
+heartbeat = 19 at +19089ms, readyState=none, allSockets=[none]
+heartbeat = 20 at +20091ms, readyState=none, allSockets=[none]
++22330ms = xhr probe 4 readyState=4 status=0

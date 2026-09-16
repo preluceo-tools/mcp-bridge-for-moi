@@ -1,0 +1,27 @@
+# probe 5 recon = 
+moi.version = 4.0 Dec-22-2020
+geometryDatabase = function
+getObjects() at startup = 0
+currentFileName = []
+vectorMath = function
+createPoint(0,0,0) = function :: 0,0,0
+createTopFrame() = function
+createTopFrame(pt) = function
+createFrame(pt,x,y) = function
+frame.origin = 0,0,0 / zaxis=0,0,1
+createFactory(box) = function
+box.numInputs = 6
+box.getInput(0) = function value=getValue THREW
+box.getInput(1) = function value=getValue THREW
+box.getInput(2) = function value=getValue THREW
+box.getInput(3) = function value=getValue THREW
+box.getInput(4) = function value=getValue THREW
+box.getInput(5) = function value=getValue THREW
+box.getInput(6) = THREW: Invalid function argument 1
+box.getInput(7) = THREW: Invalid function argument 1
+build box = update ok
+box getCreatedObjects before commit = 1
+box commit = ok
+db count after commit = 1
+getLastCreated = function length=0
+first object type = THREW: TypeError: true is not a constructor (evaluating 'o.isSolidBRep()')

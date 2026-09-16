@@ -1,0 +1,22 @@
+# MoI probe 2 - HTML page context (ws-close)
+moi.version = 4.0 Dec-22-2020
+typeof window = object
+typeof document = object
+document.location.href = moi://commands/NetProbe2.htm
+document.domain = commands
+navigator.userAgent = Mozilla/5.0 (N; Windows NT 10.0; Win64; x64) AppleWebKit/538.1 (KHTML, like Gecko) MoI Safari/538.1
+typeof XMLHttpRequest = object
+typeof WebSocket = object
+typeof fetch = undefined
+typeof setTimeout = function
+typeof localStorage = object
+typeof Worker = object
+typeof Blob = object
+typeof FileReader = object
+sync XHR status = 200
+sync XHR responseText = PONG-FROM-SERVER
+async XHR = sent
+WebSocket ctor = ok, readyState=0
+async XHR status = 200
+async XHR responseText = PONG-FROM-SERVER
+WebSocket = onclose fired (attempt was made)
