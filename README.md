@@ -179,6 +179,10 @@ The other 103 are each committed with real inputs, and their output checked, by
   | `avoidSmallerThan` | Avoid smaller than | document units, 0 = off | 0 |
   | `aspectRatioLimit` | Aspect ratio limit | 0 = off | 0 |
 
+  `ngons` keeps a flat face with more than four corners as one polygon (e.g. the cap of a
+  hexagonal prism is written as a single six-sided face); `quads` splits it up (that cap becomes six
+  triangles).
+
   The reply lists the settings used. They then stay in MoI's own mesh dialog for the rest of the
   MoI session, and your previous settings can't be put back: MoI doesn't let a script read them.
   Check the dialog before your next manual mesh export. Mesh settings on any other format (e.g.
@@ -429,6 +433,8 @@ and output of each one. `docs/adr/` records the decisions that would otherwise l
 - [ADR-0004](docs/adr/0004-the-agent-never-saves.md): why the agent never saves
 - [ADR-0005](docs/adr/0005-the-agent-sees-by-rendering.md): why the agent sees by rendering rather
   than by grabbing the screen
+- [ADR-0006](docs/adr/0006-mesh-exports-send-every-setting.md): why a mesh export sends every mesh
+  setting, and so overwrites yours
 
 > [!NOTE]
 > If you're about to simplify something here, read those first. Most of the odd-looking choices are
