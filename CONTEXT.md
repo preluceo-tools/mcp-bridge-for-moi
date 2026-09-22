@@ -111,6 +111,21 @@ the agent asks the user and settles it first. The agent settles a unit system; i
 converts one, because converting rescales geometry and replaces every object's id.
 _Avoid_: units setting, scale, measurement system
 
+### Exporting
+
+**Mesh settings**:
+The seven options that turn NURBS surfaces into polygons when a file is written in a mesh format —
+angle, output (n-gons, quads & triangles, triangles only), weld, divide larger than (and what it
+applies to), avoid smaller than, aspect ratio limit. One set, shared with MoI's own mesh dialog,
+held for the rest of the MoI session by whatever export set it last — the user's or the agent's.
+_Avoid_: export settings, mesh options, meshing parameters
+
+**Mesh format**:
+A file format MoI writes as polygons rather than as NURBS — OBJ, STL, 3DS, FBX, LWO, SKP. Only
+these take mesh settings. STEP, IGES, SAT, DXF and the 2D formats (AI, EPS, PDF) are written as
+they are modelled.
+_Avoid_: polygon format, tessellated format
+
 ### Seeing
 
 **Viewport**:
