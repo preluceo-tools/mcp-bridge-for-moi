@@ -42,7 +42,7 @@ It works in ***your*** MoI. It doesn't drive a hidden copy and it isn't a batch 
 - [Safety](#safety)
 - [Limitations](#limitations) — [Commands a script can't run](#commands-a-script-cant-run) · [Factory quirks](#factory-quirks) · [Files and export](#files-and-export) · [Seeing the model](#seeing-the-model) · [Sessions](#sessions) · [Where it runs](#where-it-runs)
 - [Requirements](#requirements)
-- [Setup](#setup)
+- [Setup](#setup) · [Updating](#updating)
 - [Commands](#commands) — [On the command line](#on-the-command-line) · [What the agent can call](#what-the-agent-can-call)
 - [Things the agent has to know](#things-the-agent-has-to-know) — [Error codes](#error-codes)
 - [The eval log](#the-eval-log)
@@ -287,10 +287,36 @@ in `.js`.
 document otherwise has no unit system, and the agent has to ask you for one before it can
 model or export (see [Limitations](#sessions)). With a default set, new documents never ask.
 
-> [!NOTE]
-> After you pull a newer version, **rebuild and run `install` again.** The bridge is a copy that
-> nothing updates on its own. If it gets out of date, the server refuses to connect and tells you so.
-> [CHANGELOG.md](CHANGELOG.md) lists what each version changed.
+---
+
+## Updating
+
+[CHANGELOG.md](CHANGELOG.md) lists what each version changed, and the
+[Releases](https://github.com/preluceo-tools/mcp-bridge-for-moi/releases) page has each version as a download.
+
+**1. Get the new code and build it.** In the repository folder:
+
+```bash
+git pull
+npm install
+npm run build
+```
+
+If you installed from a downloaded release rather than with `git clone`, unpack the new release
+over the old folder instead of `git pull`, then run the other two commands.
+
+**2. Install the bridge again**, then **restart MoI**:
+
+```bash
+node dist/cli.js install
+```
+
+The bridge in MoI's startup folder is a copy, and nothing updates it on its own. If it is out of
+date, the server refuses to connect and tells you so.
+
+**3. Restart the server.** Your AI client keeps the old server running until it restarts it:
+restart the client, or reconnect the `moi` server from its MCP settings (e.g. `/mcp` in Claude
+Code).
 
 ---
 
