@@ -5,7 +5,56 @@ import { BridgeError } from "../session.js";
 import { RESOLVE_IDS, WITH_SELECTION } from "../scripts.js";
 import { asJson, WRITES_FILE, type Tool } from "../tool.js";
 
-type Args = { ids?: string[]; path: string; angle?: number };
+/**
+ * The mesh settings, named after MoI's Meshing options dialog, each with the key MoI reads in the
+ * options string and the default sent when the caller leaves it out: MoI's own factory values.
+ * Every mesh export sends all seven, because MoI keeps the last value of any key left out
+ * (ADR 0006, docs/research/probe-14-mesh-export-options.md).
+ */
+const MESH = {
+  angle: { key: "Angle", default: 12 },
+  output: { key: "Output", default: "quads" },
+  weld: { key: "Weld", default: true },
+  divideLargerThan: { key: "MaxLength", default: 0 },
+  divideLargerThanApplyTo: { key: "MaxLengthApplyTo", default: "curved" },
+  avoidSmallerThan: { key: "MinLength", default: 0 },
+  aspectRatioLimit: { key: "AspectRatio", default: 0 },
+} as const;
+
+type MeshSettings = {
+  angle: number;
+  output: "ngons" | "quads" | "triangles";
+  weld: boolean;
+  divideLargerThan: number;
+  divideLargerThanApplyTo: "curved" | "planes" | "all";
+  avoidSmallerThan: number;
+  aspectRatioLimit: number;
+};
+
+type Args = { ids?: string[]; path: string } & Partial<MeshSettings>;
+
+/** The formats MoI meshes on export (probe-14); every other format ignores mesh settings. */
+const MESH_FORMAT = /\.(obj|stl|3ds|fbx|lwo|skp)$/i;
+const isStl = (path: string) => /\.stl$/i.test(path);
+
+/**
+ * The full set of mesh settings an export sends, or undefined for a format that is not meshed.
+ * STL is always triangles, so that is its default output too.
+ */
+const meshSettings = (args: Args): MeshSettings | undefined => {
+  if (!MESH_FORMAT.test(args.path)) return undefined;
+  const settings = Object.fromEntries(
+    Object.entries(MESH).map(([name, { default: d }]) => [name, args[name as keyof MeshSettings] ?? d]),
+  ) as MeshSettings;
+  if (isStl(args.path) && args.output === undefined) settings.output = "triangles";
+  return settings;
+};
+
+/** Numbers and schema-checked enum words only, so plain quotes around the string are safe. */
+const optionsOf = (settings: MeshSettings | undefined) =>
+  ["NoUI=true", ...Object.entries(settings ?? {}).map(([name, value]) =>
+    `${MESH[name as keyof MeshSettings].key}=${typeof value === "number" ? Number(value) : String(value)}`,
+  )].join(";");
 
 /** What the script below returns. */
 type Reply = { via: string; exported: boolean; found: number | null; missing: string[] };
@@ -56,9 +105,14 @@ export const exportObjectsTool: Tool<Args, Reply> = {
     "name are untouched, .3dm is refused, and a path that already " +
     "exists is refused, so no file is ever overwritten. Also refused before MoI is asked: " +
     ".dwg, which MoI 4 cannot write (use .dxf), and a folder that does not exist, which " +
-    "would leave MoI stuck on an error box. `angle` sets the mesh density for " +
-    "mesh formats (smaller is finer); without it MoI uses the user's last mesh settings. " +
-    "Reports the bytes written and any ids not found.",
+    "would leave MoI stuck on an error box. Mesh formats (OBJ, STL, 3DS, FBX, LWO, SKP) " +
+    "take the mesh settings of MoI's Meshing options dialog: angle, output, weld, " +
+    "divideLargerThan, divideLargerThanApplyTo, avoidSmallerThan, aspectRatioLimit. Every " +
+    "mesh export sends all of them, the defaults filling any left out, so the same call " +
+    "always gives the same mesh; the reply lists the settings used. Warning: those settings " +
+    "then stay in MoI's own mesh dialog for the rest of the MoI session, and the user's " +
+    "previous settings cannot be restored. Mesh settings on any other format are refused, " +
+    "as is an STL output other than triangles. Reports the bytes written and any ids not found.",
   input: {
     ids: z
       .array(z.string())
@@ -73,7 +127,37 @@ export const exportObjectsTool: Tool<Args, Reply> = {
       .finite()
       .positive()
       .optional()
-      .describe("Mesh angle in degrees, for mesh formats. Smaller gives more faces."),
+      .describe("Mesh angle in degrees, mesh formats only. Smaller gives more faces. Default 12."),
+    output: z
+      .enum(["ngons", "quads", "triangles"])
+      .optional()
+      .describe("Polygons to write, mesh formats only. Default quads (quads and triangles); STL is always triangles."),
+    weld: z
+      .boolean()
+      .optional()
+      .describe("Weld vertices along edges, so faces share them. Mesh formats only. Default true."),
+    divideLargerThan: z
+      .number()
+      .finite()
+      .nonnegative()
+      .optional()
+      .describe("Divide polygons longer than this, in document units; 0 is off. Mesh formats only. Default 0."),
+    divideLargerThanApplyTo: z
+      .enum(["curved", "planes", "all"])
+      .optional()
+      .describe("Which surfaces divideLargerThan divides. Mesh formats only. Default curved."),
+    avoidSmallerThan: z
+      .number()
+      .finite()
+      .nonnegative()
+      .optional()
+      .describe("Avoid polygons smaller than this, in document units; 0 is off. Mesh formats only. Default 0."),
+    aspectRatioLimit: z
+      .number()
+      .finite()
+      .nonnegative()
+      .optional()
+      .describe("Limit on a polygon's aspect ratio; 0 is off. Mesh formats only. Default 0."),
   },
   direct: false,
   annotations: WRITES_FILE,
@@ -84,7 +168,19 @@ export const exportObjectsTool: Tool<Args, Reply> = {
    * for; a missing target folder, which leaves modal error boxes open in MoI and blocks every
    * later call (probe-14); and a path that already exists.
    */
-  precheck: ({ path }) => {
+  precheck: (args) => {
+    const { path } = args;
+    if (!MESH_FORMAT.test(path)) {
+      const given = Object.keys(MESH).filter((name) => args[name as keyof MeshSettings] !== undefined);
+      if (given.length) {
+        return `${given.join(", ")}: mesh settings apply only to mesh formats (OBJ, STL, 3DS, FBX, ` +
+          `LWO, SKP), and ${path} is not one. Leave them out.`;
+      }
+    }
+    if (isStl(path) && args.output !== undefined && args.output !== "triangles") {
+      return `STL is always triangles; output "${args.output}" cannot be written to it. ` +
+        `Leave output out or set it to "triangles".`;
+    }
     if (/\.dwg$/i.test(path)) {
       return "MoI 4 cannot write DWG: it writes no file and reports no error. Export to .dxf, " +
         "the closest format it does write.";
@@ -106,8 +202,9 @@ export const exportObjectsTool: Tool<Args, Reply> = {
    * dialog. See docs/research/probe-13-file-export.md.
    *
    * `NoUI=true` is always sent: without it a mesh format opens MoI's modal mesh dialog, which
-   * freezes the side pane the bridge lives in until a person clicks it away. The only caller text
-   * that reaches the options string is `angle`, a number the schema has already checked.
+   * freezes the side pane the bridge lives in until a person clicks it away. A mesh format also
+   * gets all seven mesh settings; the only caller values that reach the options string are those,
+   * numbers and enum words the schema has already checked.
    *
    * With `ids`, `fileExport` writes the selection and only the selection, so the selection is
    * set to exactly those objects for the call and the user's own put back in a `finally`. Without
@@ -119,8 +216,7 @@ export const exportObjectsTool: Tool<Args, Reply> = {
    * looking for the file.
    */
   script: (opts) => {
-    // Only a literal and a number go in, so plain quotes are safe.
-    const options = `'NoUI=true${opts.angle === undefined ? "" : `;Angle=${Number(opts.angle)}`}'`;
+    const options = `'${optionsOf(meshSettings(opts))}'`;
     const path = JSON.stringify(opts.path);
     if (!opts.ids) {
       return `
@@ -137,7 +233,8 @@ return { via: 'fileExport', exported: true, found: hit.objects.length, missing: 
 `;
   },
 
-  reply: ({ via, exported, found, missing }, { path }) => {
+  reply: ({ via, exported, found, missing }, args) => {
+    const { path } = args;
     if (!exported) {
       throw new BridgeError(
         "not_found",
@@ -155,6 +252,7 @@ return { via: 'fileExport', exported: true, found: hit.objects.length, missing: 
       );
     }
     // `objects` is null for a whole-scene export: saveAs does not say how many it wrote.
-    return asJson({ path, bytes, via, objects: found, missing });
+    const mesh = meshSettings(args);
+    return asJson({ path, bytes, via, objects: found, missing, ...(mesh && { meshSettings: mesh }) });
   },
 };

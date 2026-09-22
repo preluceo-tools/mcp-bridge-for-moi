@@ -27,6 +27,7 @@ const SAMPLES: Record<string, object[]> = {
   delete_objects: [{ ids: ["a", "b"] }],
   export_objects: [
     { ids: ["a"], path: "C:/x.obj", angle: 5 },
+    { path: "C:/x.stl", output: "triangles", weld: false, divideLargerThan: 1, avoidSmallerThan: 0.5 },
     { path: "C:/x.step" },
   ],
   get_view: [...VIEWPORTS.map((viewport) => ({ viewport })), ...paneFrames],

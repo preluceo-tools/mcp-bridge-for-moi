@@ -165,9 +165,24 @@ The other 103 are each committed with real inputs, and their output checked, by
 - **`export_objects` refuses `.dwg` and missing folders** before MoI is asked. MoI 4 can't write
   DWG and says nothing when asked to, so export to `.dxf` instead. It doesn't create folders
   either: the folder in the path (e.g. `<output folder>\part.step`) must already exist.
-- **Only one mesh setting is exposed.** `export_objects` can set the mesh `angle`. The other
-  settings in MoI's mesh dialog (e.g. output type, welding, dividing large faces) can't be reached
-  and follow whatever you last chose in that dialog.
+- **A mesh export overwrites your mesh settings.** Exports to a mesh format (OBJ, STL, 3DS, FBX,
+  LWO, SKP) take every option of MoI's Meshing options dialog, and `export_objects` sends all of
+  them each time, so the same call always writes the same mesh:
+
+  | Parameter | Dialog option | Values | Default |
+  |---|---|---|---|
+  | `angle` | Angle | degrees, above 0 | 12 |
+  | `output` | Output | `ngons`, `quads`, `triangles` | `quads` (STL: always `triangles`) |
+  | `weld` | Weld vertices along edges | `true`, `false` | `true` |
+  | `divideLargerThan` | Divide larger than | document units, 0 = off | 0 |
+  | `divideLargerThanApplyTo` | Divide larger than, applied to | `curved`, `planes`, `all` | `curved` |
+  | `avoidSmallerThan` | Avoid smaller than | document units, 0 = off | 0 |
+  | `aspectRatioLimit` | Aspect ratio limit | 0 = off | 0 |
+
+  The reply lists the settings used. They then stay in MoI's own mesh dialog for the rest of the
+  MoI session, and your previous settings can't be put back: MoI doesn't let a script read them.
+  Check the dialog before your next manual mesh export. Mesh settings on any other format (e.g.
+  STEP, IGES, DXF) are refused, and so is an STL `output` other than `triangles`.
 
 ### Seeing the model
 
@@ -316,7 +331,7 @@ asking and ask you before a destructive one.
 | `get_view` | *read-only* | Takes a picture of a viewport (3D, Top, Front, Right) so the agent can check its own work. It can aim the camera at particular objects for that one picture without moving your view or your selection, and it still works when MoI is minimized. |
 | `set_view` | *changing* | Points one of your viewports at chosen objects, the selection, or the whole scene, optionally from a named angle. |
 | `set_viewport_layout` | *changing* | Switches MoI between the four-viewport layout and a single viewport. |
-| `export_objects` | *writes a file* | Writes chosen objects, or the whole scene, to a new file in any format MoI exports (e.g. STEP, OBJ, STL), picked by the extension. It never opens a dialog, never overwrites an existing file, and doesn't write `.3dm` or `.dwg` (use `.dxf`) or into a folder that doesn't exist. Your open document, its name and your selection are left as they were. |
+| `export_objects` | *writes a file* | Writes chosen objects, or the whole scene, to a new file in any format MoI exports (e.g. STEP, OBJ, STL), picked by the extension. It never opens a dialog, never overwrites an existing file, and doesn't write `.3dm` or `.dwg` (use `.dxf`) or into a folder that doesn't exist. Your open document, its name and your selection are left as they were. A mesh format (e.g. OBJ, STL, FBX) takes the full set of mesh settings and leaves them in MoI's mesh dialog (see [Limitations](#limitations)). |
 
 ---
 
@@ -345,7 +360,7 @@ A refused or failed call starts with its code in brackets, e.g. `[no_units]`:
 
 | Code | What it means |
 |---|---|
-| `bad_request` | The server refused the call before asking MoI, because its arguments cannot mean anything: e.g. `padding` without a `frame` (on `get_view` or `set_view`), a real `frame` or an `angle` with the `get_view` window shot, or an export path that already exists, ends in `.dwg`, or sits in a folder that doesn't exist. |
+| `bad_request` | The server refused the call before asking MoI, because its arguments cannot mean anything: e.g. `padding` without a `frame` (on `get_view` or `set_view`), a real `frame` or an `angle` with the `get_view` window shot, or an export path that already exists, ends in `.dwg`, or sits in a folder that doesn't exist, or mesh settings on a format that isn't meshed. |
 | `no_units` | A modelling or export call on a document with no unit system. The agent asks you which units to use and calls `set_units`. |
 | `units_set` | `set_units` on a document that already has units. Nothing changed; to change units, use MoI's Options. |
 | `command_running` | You have a command running in MoI, so a call that would change something is refused until you finish or cancel it. |
