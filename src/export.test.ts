@@ -88,6 +88,34 @@ test("a precheck refusal never reaches the bridge", async () => {
   }
 });
 
+const refusal = (r: Awaited<ReturnType<typeof runTool>>) => {
+  assert.equal(r.isError, true);
+  return r.content[0].type === "text" ? r.content[0].text : "";
+};
+
+test("a target folder that does not exist is refused, naming it, and never reaches the bridge", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "mcp-bridge-for-moi-export-"));
+  try {
+    writeFileSync(join(dir, "a-file"), "");
+    // Missing outright, and "missing" because a part of the path is a file.
+    for (const missing of [join(dir, "no-such-folder"), join(dir, "a-file", "sub")]) {
+      const r = await runTool(noBridge, exportObjectsTool, { path: join(missing, "part.step") });
+      const text = refusal(r);
+      assert.match(text, /^\[bad_request\].*does not exist/);
+      assert.ok(text.includes(missing), text);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+for (const ext of ["dwg", "DWG", "Dwg"]) {
+  test(`.${ext} is refused as unwritable by MoI 4, pointing to DXF, and never reaches the bridge`, async () => {
+    const r = await runTool(noBridge, exportObjectsTool, { ids: ["{a}"], path: join(tmpdir(), `part.${ext}`) });
+    assert.match(refusal(r), /^\[bad_request\].*cannot write DWG.*\.dxf/);
+  });
+}
+
 test("a tool that is not direct gets REFUSES_NOTE; a direct one does not", () => {
   const tool = (direct: boolean): Tool<object, unknown> => ({
     name: "t",

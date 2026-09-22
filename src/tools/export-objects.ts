@@ -1,5 +1,5 @@
 import { existsSync, statSync } from "node:fs";
-import { isAbsolute } from "node:path";
+import { dirname, isAbsolute } from "node:path";
 import { z } from "zod";
 import { BridgeError } from "../session.js";
 import { RESOLVE_IDS, WITH_SELECTION } from "../scripts.js";
@@ -28,6 +28,15 @@ const PATH_SCHEMA = z
       "so the user's next save would go there. Export to another format.",
   });
 
+/** Whether `p` is a folder; false, not a throw, when a part of it is a file or unreadable. */
+const isFolder = (p: string) => {
+  try {
+    return statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+};
+
 /** The files an export writes: an OBJ brings a .mtl of the same name with it. */
 const written = (path: string) =>
   /\.obj$/i.test(path) ? [path, path.replace(/\.obj$/i, ".mtl")] : [path];
@@ -45,7 +54,9 @@ export const exportObjectsTool: Tool<Args, Reply> = {
     "user's selection is borrowed for the call and put back. Without ids, exports the " +
     "whole scene. Never opens a dialog. This is not saving: the open document and its file " +
     "name are untouched, .3dm is refused, and a path that already " +
-    "exists is refused, so no file is ever overwritten. `angle` sets the mesh density for " +
+    "exists is refused, so no file is ever overwritten. Also refused before MoI is asked: " +
+    ".dwg, which MoI 4 cannot write (use .dxf), and a folder that does not exist, which " +
+    "would leave MoI stuck on an error box. `angle` sets the mesh density for " +
     "mesh formats (smaller is finer); without it MoI uses the user's last mesh settings. " +
     "Reports the bytes written and any ids not found.",
   input: {
@@ -68,7 +79,21 @@ export const exportObjectsTool: Tool<Args, Reply> = {
   annotations: WRITES_FILE,
   needsUnits: true,
 
+  /**
+   * Refuses, before MoI is touched: `.dwg`, which MoI 4 writes nothing to and raises nothing
+   * for; a missing target folder, which leaves modal error boxes open in MoI and blocks every
+   * later call (probe-14); and a path that already exists.
+   */
   precheck: ({ path }) => {
+    if (/\.dwg$/i.test(path)) {
+      return "MoI 4 cannot write DWG: it writes no file and reports no error. Export to .dxf, " +
+        "the closest format it does write.";
+    }
+    const folder = dirname(path);
+    if (!isFolder(folder)) {
+      return `The folder ${folder} does not exist. export_objects does not create folders; ` +
+        `create it first or choose a path in an existing folder.`;
+    }
     const clashes = written(path).filter((p) => existsSync(p));
     return clashes.length
       ? `${clashes.join(" and ")} already exists. export_objects never overwrites a file; ` +
@@ -126,7 +151,7 @@ return { via: 'fileExport', exported: true, found: hit.objects.length, missing: 
       throw new BridgeError(
         "moi_error",
         `MoI reported no error but wrote no file to ${path}. It writes nothing when there is ` +
-          `nothing to export, and nothing to a folder that does not exist or cannot be written.`,
+          `nothing to export, and nothing to a folder that cannot be written.`,
       );
     }
     // `objects` is null for a whole-scene export: saveAs does not say how many it wrote.

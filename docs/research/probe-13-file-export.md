@@ -97,6 +97,10 @@ The file name was read inside the call and again in a later call; both agreed.
 afterwards), and it must confirm the file exists rather than trust the return value. Follow-up:
 `.scratch/moi-mcp-v2/issues/22-export-tool.md`.
 
+> **Correction (probe-14):** `NoUI=true` is not the whole story. An export into a folder that
+> does not exist is not a silent no-op: it left modal error boxes open in MoI and hung the bridge.
+> See [probe-14](probe-14-mesh-export-options.md); `export_objects` now refuses a missing folder.
+
 A call without `NoUI=true` to a mesh format hangs the bridge until someone clicks the dialog
 away, so the tool must never build the options string from caller input without forcing that
 key.

@@ -33,7 +33,8 @@ const text = (r: Awaited<ReturnType<typeof runTool>>) =>
   r.content.map((c) => (c.type === "text" ? c.text : "")).join("");
 
 const unitless = () => fakeMoi({ units: NO_UNITS, objects: [{ id: guid(1), selected: true }] });
-const nowhere = join(tmpdir(), "mcp-bridge-for-moi-no-such-folder", "part.step");
+// A path that does not exist in a folder that does: it gets past the precheck, and nothing writes it.
+const nowhere = join(tmpdir(), "mcp-bridge-for-moi-no-units-part.step");
 
 test("on a unitless document moi_eval and export_objects answer [no_units] and touch nothing", async () => {
   const calls: [Tool<any, any>, object][] = [
