@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SessionHost, BridgeError } from "./session.js";
@@ -14,6 +15,8 @@ import { setViewTool } from "./tools/set-view.js";
 import { setViewportLayoutTool } from "./tools/set-viewport-layout.js";
 import { moiFactoryHelpTool } from "./tools/moi-factory-help.js";
 import { NO_UNITS_MESSAGE, NO_UNITS_NOTE, setUnitsTool } from "./tools/set-units.js";
+
+const VERSION: string = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
 
 /** Every tool the server lists, in the order it lists them. `any`: each has its own Args and Reply. */
 export const TOOLS: Tool<any, any>[] = [
@@ -100,7 +103,7 @@ const failure = (e: BridgeError) => ({
 });
 
 export function buildServer(host: SessionHost): McpServer {
-  const server = new McpServer({ name: "mcp-bridge-for-moi", version: "0.1.0" });
+  const server = new McpServer({ name: "mcp-bridge-for-moi", version: VERSION });
   // The handshake file names the client that owns this server, for the other server's
   // conflict message. Known only once the client has initialised.
   server.server.oninitialized = () => host.setClient(server.server.getClientVersion()?.name);

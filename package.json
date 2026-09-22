@@ -1,6 +1,6 @@
 {
   "name": "mcp-bridge-for-moi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An MCP server that lets an agent inspect and model in a live MoI3D v4 session.",
   "license": "GPL-3.0-or-later",
   "type": "module",

@@ -290,6 +290,7 @@ model or export (see [Limitations](#sessions)). With a default set, new document
 > [!NOTE]
 > After you pull a newer version, **rebuild and run `install` again.** The bridge is a copy that
 > nothing updates on its own. If it gets out of date, the server refuses to connect and tells you so.
+> [CHANGELOG.md](CHANGELOG.md) lists what each version changed.
 
 ---
 

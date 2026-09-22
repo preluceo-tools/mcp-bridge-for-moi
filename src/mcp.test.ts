@@ -87,6 +87,11 @@ test("each tool's declared annotations reach listTools", async () => {
 
 // The README's Kind column is what a user reads before trusting a tool; it must match the
 // constant each tool actually declares.
+test("the server reports the version in package.json", () => {
+  const pkg = JSON.parse(readFileSync(join(import.meta.dirname, "..", "package.json"), "utf8"));
+  assert.equal(client.getServerVersion()?.version, pkg.version);
+});
+
 test("the README's Kind column names the annotation constant each tool declares", () => {
   const constants: Record<string, unknown> = {
     "read-only": READ_ONLY,
