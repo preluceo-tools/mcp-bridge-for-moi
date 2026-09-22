@@ -74,9 +74,12 @@ What this shows:
 - **MoI validates nothing.** An unknown key or an unknown value is ignored without an error, and
   the previous value stays in effect. A negative angle is accepted and produced a
   120 000-vertex mesh from a sphere. Validation has to happen in the tool.
-- **Not established:** `Output=ngons`. The sphere and box have no faces that n-gons would
-  change, so it gave the same result as `quads`. The value is the dialog's own, so it is very
-  likely honoured, but no run demonstrated it. The dialog's `Display` field is a viewport
+- **`Output=ngons` is honoured.** A hexagonal prism (radius 15, height 20) exported to OBJ
+  through `export_objects` with `output: "ngons"` wrote each cap as one 6-vertex `f` line:
+  12 vertices, 8 faces (2 hexagons, 6 quads). The same prism with `output: "quads"` split
+  each cap into 6 triangles around a centre vertex: 14 vertices, 18 faces (12 triangles,
+  6 quads). The sphere and box used above have no faces that n-gons would change, which is
+  why they gave the same result as `quads`. The dialog's `Display` field is a viewport
   preview and has no bearing on the file.
 
 ## Which formats are meshed
