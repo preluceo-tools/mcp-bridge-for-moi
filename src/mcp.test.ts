@@ -94,7 +94,7 @@ test("the README's Kind column names the annotation constant each tool declares"
     "writes a file": WRITES_FILE,
     destructive: DESTRUCTIVE,
   };
-  const rows = [...README.matchAll(/^\| `(\w+)` \| ([^|]+) \|/gm)].map(([, name, kind]) => [name, kind.trim()]);
+  const rows = [...README.matchAll(/^\| `(\w+)` \| ([^|]+) \|/gm)].map(([, name, kind]) => [name, kind.replace(/\*/g, "").trim()]);
   const listed = rows.filter(([name]) => TOOLS.some((t) => t.name === name));
   assert.deepEqual(listed.map(([name]) => name).sort(), TOOLS.map((t) => t.name).sort(), "README tool table");
   for (const [name, kind] of listed) {
