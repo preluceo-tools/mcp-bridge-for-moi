@@ -384,6 +384,12 @@ you'll see:
   sees nothing created and nothing consumed it adds a warning, and `moi_eval` repeats it after the
   script's result. Factories that only measure, or add a background image, create nothing when they
   succeed, so the warning is a prompt to check, not a verdict.
+- **A boolean that misses looks like one that worked.** A difference whose cutter is in empty space
+  still replaces the part with a new, identical one. The built-in `boolean( kind, targets, tools )`
+  helper runs a difference, union or intersection, returns every object it made (named and styled
+  like the first target), and warns when the face count didn't change, when a union left separate
+  pieces, or when nothing was made. An intersection that finds no overlap is an answer, not a
+  warning.
 
 ### Error codes
 

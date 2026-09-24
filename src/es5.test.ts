@@ -11,7 +11,7 @@ import { FULL_SCENE_MAX, getSceneTool } from "./tools/get-scene.js";
 import { getSelectionTool } from "./tools/get-selection.js";
 import { moiEvalTool } from "./tools/moi-eval.js";
 import { UNITS } from "./tools/set-units.js";
-import { A, B, C, fakeMoi, guid, ids, runScript, sceneOf } from "./fake-moi.js";
+import { A, B, C, fakeMoi, guid, ids, runScript, sceneOf, type ObjectSpec } from "./fake-moi.js";
 
 const frames: FrameSubject[] = [["a"], "selection", "scene", "none"];
 /** Every pane with every framing subject: what get_view and set_view both send. */
@@ -230,6 +230,77 @@ test("moi_eval's description asks for capture around every commit, and no longer
 test("moi_eval's description names isSolidBRep and says a live object has no isSolid", () => {
   assert.match(moiEvalTool.description, /obj\.isSolidBRep/);
   assert.match(moiEvalTool.description, /no isSolid \(it reads undefined\)/);
+});
+
+/**
+ * A document whose boolean factories consume every object they were given and add `results`.
+ * `inputs` records what each commit was set.
+ */
+function booleanDoc(objects: ObjectSpec[], results: ObjectSpec[]) {
+  const inputs: unknown[][] = [];
+  const noInputs = { booleandifference: [], booleanunion: [], booleanintersection: [] };
+  const fake = fakeMoi({
+    objects,
+    factories: noInputs,
+    onCommit: (_name, set) => {
+      inputs.push(set);
+      for (const l of set as { length?: number; item?: (i: number) => { id: string } }[])
+        if (l && l.item) for (let i = 0; i < l.length!; ++i) fake.moi.geometryDatabase.removeObject(l.item(i) as never);
+      for (const r of results) fake.moi.__add(r);
+    },
+  });
+  return { fake, inputs };
+}
+const D = guid(4);
+const part = { id: A, name: "part", styleIndex: 2, faces: 6 };
+const warningOf = (content: unknown[]) => (content[1] as { text: string } | undefined)?.text;
+
+test("boolean difference whose cutter misses returns the result, carries name and style, and warns", () => {
+  const { fake, inputs } = booleanDoc([part, { id: B, faces: 6 }], [{ id: C, faces: 6 }]);
+  const content = evalReply(`return boolean( 'difference', '${A}', moi.geometryDatabase.findObject( '${B}' ) );`, fake.moi);
+  const reply = JSON.parse((content[0] as { text: string }).text);
+  assert.deepEqual(ids(reply.created), [C]);
+  assert.deepEqual([reply.created[0].name, reply.created[0].styleIndex], ["part", 2]);
+  assert.deepEqual(reply.consumed, [A, B]);
+  const [targets, tools, keep] = inputs[0] as { item: (i: number) => { id: string } }[];
+  assert.deepEqual([targets.item(0).id, tools.item(0).id, keep], [A, B, false]);
+  assert.match(warningOf(content)!, /^Warning \(capture 1 of 1\): The difference result has the same number of faces \(6\).*missed/);
+});
+
+test("boolean difference that cuts returns the result with no warning", () => {
+  const { fake } = booleanDoc([part, { id: B, faces: 6 }], [{ id: C, faces: 9 }]);
+  const content = evalReply(`return boolean( 'difference', [ '${A}' ], [ '${B}' ] ).created.length;`, fake.moi);
+  assert.deepEqual(content, [{ type: "text", text: "1" }]);
+});
+
+test("boolean union of two disjoint solids returns both objects and warns", () => {
+  const { fake, inputs } = booleanDoc([part, { id: B, faces: 6 }], [{ id: C, faces: 6 }, { id: D, faces: 6 }]);
+  const content = evalReply(`return boolean( 'union', [ '${A}', '${B}' ] );`, fake.moi);
+  const reply = JSON.parse((content[0] as { text: string }).text);
+  assert.deepEqual(ids(reply.created), [C, D]);
+  assert.deepEqual(reply.created.map((o: { name: string }) => o.name), ["part", "part"]);
+  assert.equal((inputs[0][0] as { length: number }).length, 2);
+  assert.match(warningOf(content)!, /left 2 separate objects/);
+});
+
+test("boolean intersection with no overlap is an answer, not a warning", () => {
+  const fake = fakeMoi({ objects: [part, { id: B, faces: 6 }], factories: { booleanintersection: [] } });
+  const content = evalReply(`return boolean( 'intersection', '${A}', '${B}' );`, fake.moi);
+  assert.equal(content.length, 1);
+  const reply = JSON.parse((content[0] as { text: string }).text);
+  assert.deepEqual(reply.created, []);
+  assert.match(reply.note, /do not overlap/);
+});
+
+test("moi_eval's description names the boolean helper and its kinds", () => {
+  assert.match(moiEvalTool.description, /boolean\(kind, targets, tools\): kind is 'difference', 'union' or 'intersection'/);
+});
+
+test("boolean refuses an unknown kind or id before committing anything", () => {
+  const fake = fakeMoi({ objects: [part], factories: { booleandifference: [] } });
+  assert.throws(() => evalReply(`boolean( 'subtract', '${A}', '${B}' );`, fake.moi), /kind must be difference, union or intersection/);
+  assert.throws(() => evalReply(`boolean( 'difference', '${A}', '${B}' );`, fake.moi), /no object with the tool id/);
+  assert.equal(fake.log.some((l) => l.startsWith("commit")), false);
 });
 
 test("assertES5 rejects ES6 syntax and names the script", () => {

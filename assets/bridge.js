@@ -20,7 +20,7 @@
 ( function () {
 	'use strict';
 
-	var PROTOCOL = 5;   // 5: object records carry isSolid
+	var PROTOCOL = 6;   // 6: the prelude has boolean()
 	var GATE_POLL_MS = 5000;   // must exceed the ~4s connect stall, or polls overlap
 	var PING_MS = 15000;
 	var PING_TIMEOUT_MS = 45000;
@@ -184,6 +184,84 @@
 		'}',
 		'function faces( o ) { return ( o && o.getFaces ) ? subRows( o.getFaces() ) : []; }',
 		'function edges( o ) { return ( o && o.getEdges ) ? subRows( o.getEdges() ) : []; }',
+		// boolean( kind, targets, tools ): runs MoI's boolean factory through capture and warns
+		// where capture cannot: a difference whose cutter misses consumes the target and creates
+		// an identical one, which looks like success. Inputs are the ones the factory table
+		// (src/e2e-factories-table.ts) commits live: difference and intersection take targets
+		// at 0, tools at 1 and false at 2 (the tools are consumed); union takes all at 0.
+		// Results take the first target's name and style. Face counts are the heuristic: a
+		// real cut can keep the count, so the warning says "most likely".
+		'function boolean( kind, targets, tools ) {',
+		'  var factories = { difference: \'booleandifference\', union: \'booleanunion\', intersection: \'booleanintersection\' };',
+		'  var name = factories[ kind ];',
+		'  if ( !name ) throw new Error( \'boolean: kind must be difference, union or intersection, not \' + kind );',
+		'  function resolve( x, role ) {',
+		'    var list = ( x === undefined || x === null ) ? [] : ( x instanceof Array ? x : [ x ] ), out = [];',
+		'    for ( var i = 0; i < list.length; ++i ) {',
+		'      var o = ( typeof list[i] === \'string\' ) ? findById( list[i] ) : list[i];',
+		'      if ( !o ) throw new Error( \'boolean: no object with the \' + role + \' id \' + list[i] );',
+		'      out.push( o );',
+		'    }',
+		'    return out;',
+		'  }',
+		'  function toList( arr ) {',
+		'    var l = moi.geometryDatabase.createObjectList();',
+		'    for ( var i = 0; i < arr.length; ++i ) l.addObject( arr[i] );',
+		'    return l;',
+		'  }',
+		'  function faceCount( arr ) {',
+		'    var n = 0;',
+		'    for ( var i = 0; i < arr.length; ++i ) if ( arr[i] && arr[i].getFaces ) n += arr[i].getFaces().length;',
+		'    return n;',
+		'  }',
+		'  var t = resolve( targets, \'target\' ), c = resolve( tools, \'tool\' );',
+		'  if ( !t.length ) throw new Error( \'boolean: no targets given\' );',
+		'  if ( kind !== \'union\' && !c.length ) throw new Error( \'boolean: a \' + kind + \' needs at least one tool\' );',
+		'  var keepName = t[0].name, keepStyle = t[0].styleIndex;',
+		'  var inputs = ( kind === \'union\' ) ? t.concat( c ) : t;',
+		'  var facesBefore = faceCount( inputs );',
+		'  var out = capture( function () {',
+		'    var f = moi.command.createFactory( name );',
+		'    try {',
+		'      if ( kind === \'union\' ) f.setInput( 0, toList( inputs ) );',
+		'      else { f.setInput( 0, toList( t ) ); f.setInput( 1, toList( c ) ); f.setInput( 2, false ); }',
+		'      f.commit();',
+		'    } catch ( e ) { f.cancel(); throw e; }',
+		'  } );',
+		'  var results = [];',
+		'  for ( var i = 0; i < out.created.length; ++i ) {',
+		'    var o = findById( out.created[i].id );',
+		'    if ( !o ) continue;',
+		'    o.name = keepName;',
+		'    o.styleIndex = keepStyle;',
+		'    results.push( o );',
+		'  }',
+		'  out.created = [];',
+		'  for ( var r = 0; r < results.length; ++r ) out.created.push( toJson( results[r] ) );',
+		'  var index = __moiMcpCaptures.count, text = null;',
+		'  if ( !results.length ) {',
+		'    if ( kind === \'intersection\' ) {',
+		'      // No overlap is a valid answer, not a failure: take back any warning capture made.',
+		'      if ( out.warning ) { __moiMcpCaptures.warnings.pop(); delete out.warning; }',
+		'      out.note = \'The intersection is empty: the targets and tools do not overlap.\';',
+		'    } else if ( !out.warning ) {',
+		'      text = \'The \' + kind + \' created nothing: the boolean most likely failed.\';',
+		'    }',
+		'  } else {',
+		'    var notes = [];',
+		'    if ( kind !== \'intersection\' && faceCount( results ) === facesBefore )',
+		'      notes.push( \'The \' + kind + \' result has the same number of faces (\' + facesBefore + \') as its inputs had: \' +',
+		'        ( kind === \'difference\' ? \'the tools most likely missed the targets\' : \'the inputs most likely do not touch\' ) + \', or the boolean failed.\' );',
+		'    if ( kind === \'union\' && results.length > 1 )',
+		'      notes.push( \'The union left \' + results.length + \' separate objects: the inputs do not touch. All of them are in created.\' );',
+		'    if ( notes.length ) text = notes.join( \' \' );',
+		'  }',
+		'  if ( text ) {',
+		'    out.warning = text;',
+		'    __moiMcpCaptures.warnings.push( { index: index, text: text } );',
+		'  }',
+		'  return out;',
+		'}',
 		''
 	].join( '\n' );
 	// prelude-end

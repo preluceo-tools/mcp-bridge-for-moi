@@ -61,6 +61,12 @@ export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
     "bbox(obj), faces(obj), edges(obj). faces/edges list an object's faces or edges as " +
     "{ index, bbox } in getFaces()/getEdges() order; filter the rows yourself and get " +
     "the item back with obj.getEdges().item(row.index), e.g. to chamfer it. " +
+    "For booleans use boolean(kind, targets, tools): kind is 'difference', 'union' or " +
+    "'intersection', targets and tools are ids or objects, one or an array (a union takes " +
+    "them all as targets). It runs the factory through capture and returns its record with " +
+    "every result in created, named and styled like the first target, and warns when a " +
+    "difference or union left the face count unchanged (the cutter most likely missed), a " +
+    "union left separate objects, or nothing was created. An empty intersection is not a warning. " +
     "A live object has no isSolid (it reads undefined): test a closed solid with " +
     "obj.isSolidBRep, or read toJson(obj).isSolid. Do not call moi.geometryDatabase.save() — this tool never saves the " +
     "user's file. If the script throws, the error lists the ids of the objects it created " +

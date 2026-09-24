@@ -78,7 +78,12 @@ const GUID = /^\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}$
 export type Pt = { x: number; y: number; z: number };
 export type Box = { min: Pt; max: Pt };
 
-type ObjectSpec = { id: string; name?: string; selected?: boolean; hidden?: boolean; type?: number; solid?: boolean; bbox?: Box | null };
+export type ObjectSpec = {
+  id: string; name?: string; selected?: boolean; hidden?: boolean; type?: number; solid?: boolean; bbox?: Box | null;
+  /** How many faces `getFaces()` lists. Default 0. */
+  faces?: number;
+  styleIndex?: number;
+};
 type ViewportSpec = Partial<{
   projection: string;
   cameraPt: Pt;
@@ -103,7 +108,7 @@ const PANES: Record<string, ViewportSpec> = {
  * A fresh document. `log` holds every call that changes something, in order: `select <id>`,
  * `deselect <id>`, `deselectAll`, `removeObject <id>`, `redraw`, `setAngles <upDown>,<leftRight>`,
  * `setCameraAndTarget <pane>`, `render <pane> <w>x<h>`, `screenshot <name>`, `fileExport <path>`,
- * `saveAs <path>`, `units <name>`, `execCommand <name>`. `renders` and `exports` record what was selected when each ran.
+ * `saveAs <path>`, `units <name>`, `execCommand <name>`, `commit <factory>`, `cancel <factory>`. `renders` and `exports` record what was selected when each ran.
  */
 export function fakeMoi(
   opts: {
@@ -122,6 +127,8 @@ export function fakeMoi(
     unlistable?: string[];
     /** What `moi.command.createFactory( name )` knows: name to its inputs. */
     factories?: Record<string, { name: string; type: number }[]>;
+    /** What a factory's `commit()` does to the document, given the inputs it was set, e.g. a boolean's. */
+    onCommit?: (name: string, inputs: unknown[]) => void;
     /** MoI's name for the unit system, e.g. `Inches` or `No unit system`. Default `Millimeters`. */
     units?: string;
     currentFileName?: string;
@@ -230,6 +237,8 @@ export function fakeMoi(
     return {
       id: spec.id,
       name: spec.name ?? "",
+      styleIndex: spec.styleIndex ?? 0,
+      getFaces: () => list(Array.from({ length: spec.faces ?? 0 }, () => ({}))),
       hidden: spec.hidden ?? false,
       type: spec.type ?? 3,
       /** A property, not a method, as in live MoI (probe-11). */
@@ -321,7 +330,21 @@ export function fakeMoi(
       createFactory(name: string) {
         const inputs = opts.factories?.[name];
         if (!inputs) throw new Error("Invalid function argument 1");
-        return { numInputs: inputs.length, getInput: (i: number) => inputs[i] };
+        const set: unknown[] = [];
+        return {
+          numInputs: inputs.length,
+          getInput: (i: number) => inputs[i],
+          setInput: (i: number, v: unknown) => {
+            set[i] = v;
+          },
+          commit: () => {
+            log.push(`commit ${name}`);
+            opts.onCommit?.(name, set);
+          },
+          cancel: () => {
+            log.push(`cancel ${name}`);
+          },
+        };
       },
     },
     geometryDatabase: {
@@ -344,6 +367,10 @@ export function fakeMoi(
         return objects.find((o) => o.id.toLowerCase() === braced.toLowerCase()) ?? null;
       },
       getObjects: () => list(objects),
+      createObjectList() {
+        const items: unknown[] = [];
+        return { get length() { return items.length; }, item: (i: number) => items[i], addObject: (o: unknown) => items.push(o) };
+      },
       getSelectedObjects: () => list(objects.filter((o) => o.selected)),
       deselectAll() {
         log.push("deselectAll");

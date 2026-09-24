@@ -10,7 +10,7 @@ import { handshakePath } from "./paths.js";
  * refused, because a bridge one version behind is a file in MoI's startup folder that
  * nothing updates automatically. See docs/adr/0002.
  */
-export const PROTOCOL = 5;
+export const PROTOCOL = 6;
 
 /** The origin a MoI command/UI page presents. Blocks browser-based attacks; the token blocks the rest. */
 const ALLOWED_ORIGINS = ["moi://commands", "moi://ui"];
