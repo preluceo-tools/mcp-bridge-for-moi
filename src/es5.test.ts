@@ -170,6 +170,35 @@ test("a moi_eval with no warning replies with one block, as before", () => {
   assert.deepEqual(evalReply("var x = 2;", fakeMoi().moi), [{ type: "text", text: "null" }]);
 });
 
+test("a moi_eval that throws after creating an object names what it left behind", () => {
+  const fake = fakeMoi({ objects: [{ id: guid(1) }, { id: guid(2) }] });
+  const script =
+    `var db = moi.geometryDatabase; db.removeObject( db.findObject( '${guid(1)}' ) ); ` +
+    `moi.__add( { id: '${guid(3)}' } ); throw new Error( 'boom' );`;
+  assert.throws(
+    () => runScript(moiEvalTool.script({ script }), fake.moi),
+    (e: Error) =>
+      e.message.startsWith("boom\n") &&
+      e.message.includes(`created 1 object(s) that are still in the document: ${guid(3)}. Delete them with delete_objects`) &&
+      e.message.includes(`consumed 1 object(s): ${guid(1)}.`) &&
+      !e.message.includes(guid(2)) &&
+      /Ctrl\+Z/.test(e.message),
+  );
+});
+
+test("a moi_eval that throws before changing anything rethrows the error as it was", () => {
+  const thrown = new Error("nope");
+  const moi = fakeMoi({ objects: [{ id: guid(1) }] }).moi as unknown as Record<string, unknown>;
+  moi.__thrown = thrown;
+  assert.throws(() => runScript(moiEvalTool.script({ script: "throw moi.__thrown;" }), moi), (e) => e === thrown);
+  assert.throws(() => runScript(moiEvalTool.script({ script: "throw 'plain';" }), moi), (e) => e === "plain");
+});
+
+test("the id snapshot leaves a successful moi_eval's reply unchanged", () => {
+  const script = `moi.__add( { id: '${guid(2)}' } ); return 5;`;
+  assert.deepEqual(evalReply(script, fakeMoi({ objects: [{ id: guid(1) }] }).moi), [{ type: "text", text: "5" }]);
+});
+
 test("moi_eval's description asks for capture around every commit, and no longer says it always works", () => {
   assert.match(moiEvalTool.description, /Wrap every commit in capture\(function\(\)\{ … \}\)/);
   assert.match(moiEvalTool.description, /Without capture there is no such check\./);
