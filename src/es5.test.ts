@@ -55,7 +55,7 @@ test("every script that takes ids reports a malformed or all-zero id missing, ne
   assert.deepEqual(run(setSelectionTool.script({ ids: bad })).missing, bad);
   assert.deepEqual(run(deleteObjectsTool.script({ ids: bad })).missing, bad);
   assert.deepEqual(run(exportObjectsTool.script({ ids: bad, path: "C:/x.obj" })).missing, bad);
-  assert.deepEqual(run(setViewTool.script({ viewport: "3D", frame: bad })).missing, bad);
+  assert.deepEqual(run(setViewTool.script({ viewport: "3D", frame: [A, ...bad] })).missing, bad);
 });
 
 test("delete_objects counts an id given twice once, and keeps the order and spelling given", () => {

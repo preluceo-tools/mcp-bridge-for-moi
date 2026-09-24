@@ -147,6 +147,16 @@ for (const [via, frame] of Object.entries(VIA)) {
     near(state.target, CENTRE, "target");
   });
 
+  test(`${via}: ids none of which are there are refused before anything moves`, () => {
+    const fake = fakeMoi({ objects: [{ id: A, bbox: BOX }] });
+    assert.throws(
+      () => frame({ viewport: "3D", frame: [guid(99), "not-a-guid"], angle: "front" }, fake.moi),
+      (err: Error) => err.message.startsWith(`None of the ids to frame exist in MoI (${guid(99)}, not-a-guid), so nothing was changed`),
+    );
+    assert.deepEqual(fake.log, [], "the viewport was touched before refusing");
+    near(fake.viewports["3D"].cameraPt, { x: 0, y: -10, z: 0 }, "camera");
+  });
+
   test(`${via}: framing by id leaves the selection untouched`, () => {
     const fake = fakeMoi({ objects: [{ id: A, bbox: BOX }, { id: B, selected: true }] });
     frame({ viewport: "3D", frame: [A] }, fake.moi);

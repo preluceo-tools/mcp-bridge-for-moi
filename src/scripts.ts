@@ -180,6 +180,7 @@ for ( var i = 0; i < objs.length; ++i ) {
 					: `${RESOLVE_IDS}
 var hit = resolveIds( ${JSON.stringify(opts.frame)} );
 missing = hit.missing;
+if ( hit.objects.length === 0 ) throw new Error( 'None of the ids to frame exist in MoI (' + ( missing.length ? missing.join( ', ' ) : 'none were given' ) + '), so nothing was changed: no angle applied and the camera not moved.' );
 for ( var i = 0; i < hit.objects.length; ++i ) { add( hit.objects[i] ); ++found; }
 `;
 
@@ -235,9 +236,10 @@ function state( framed, note ) {
 	};
 }
 
+// Gathered first, so a subject that cannot be framed is refused before anything moves.
+${gather}
 // Before the framing, so the framing reads the direction the agent asked for.
 if ( angle ) vp.setAngles( angle[0], angle[1] );
-${gather}
 if ( !lo ) {
 	moi.ui.redrawViewports();
 	return state( false, ${

@@ -23,7 +23,8 @@ export const setViewTool: Tool<Args, unknown> = {
   input: {
     viewport: z.enum(VIEW_PANES).describe("Which pane to move. '3D' is the perspective one."),
     frame: FRAME_SCHEMA.describe(
-      "What to fill the frame with: object ids, 'selection' (what the user has " +
+      "What to fill the frame with: object ids (those not found are listed in the reply; " +
+        "if none is found it is an error and nothing moves), 'selection' (what the user has " +
         "selected — an error if that is nothing), 'scene' (every visible object), or " +
         "'none' to leave the camera where it is and just report, or just change the angle.",
     ),

@@ -198,7 +198,9 @@ export const getViewTool: Tool<Args, Reply> = {
       "What to fill the frame with before drawing: object ids, 'selection', 'scene' " +
         "(every visible object), or 'none'. Omitted is 'none': the camera is left " +
         "exactly where the user had it. Framing by ids leaves the user's selection " +
-        "untouched. With viewport 'window', which has no camera, only 'none' is accepted.",
+        "untouched; ids not found are named in the caption, and if none is found the call " +
+        "is an error, with no picture and nothing moved. With viewport 'window', which has " +
+        "no camera, only 'none' is accepted.",
     ),
     angle: ANGLE_SCHEMA.optional().describe(
       "Which way to look from before drawing. Only the 3D viewport can be given one — " +
