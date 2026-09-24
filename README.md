@@ -397,7 +397,7 @@ A refused or failed call starts with its code in brackets, e.g. `[no_units]`:
 | `command_running` | You have a command running in MoI, so a call that would change something is refused until you finish or cancel it. |
 | `no_session` | MoI isn't connected to the server. |
 | `server_conflict` | Another copy of the server is already serving MoI. |
-| `timeout` | MoI didn't answer in time. |
+| `timeout` | MoI didn't answer in time. If the message says the script never started, nothing changed. If it says the script started, it may still finish and change the document: check the scene before running it again. |
 | `script_error` | The script the agent sent threw an error inside MoI. |
 | `moi_error` | MoI reported a failure, or answered something the server couldn't use. |
 | `not_found` | Something the call needed wasn't there, e.g. none of the ids given to `export_objects` exist. |

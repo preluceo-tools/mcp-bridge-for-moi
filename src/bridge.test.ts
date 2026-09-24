@@ -202,7 +202,8 @@ describe("bridge calls", () => {
     ws.receive({ id: 1, op: "eval", script: "return 'first';" });
     advance(t, 26_000);
     assert.deepEqual(replies(ws).map((f) => [f.id, f.ok]), [[1, false]]);
-    assert.match(replies(ws)[0].error.message, /did not run the script within 25s/);
+    assert.equal(replies(ws)[0].error.code, "timeout");
+    assert.match(replies(ws)[0].error.message, /did not start the script within 25s\. It did not run and nothing changed/);
     ws.receive({ id: 2, op: "eval", script: "return 'second';" });
     // Call 1's command finishes late and leaves its answer where call 2 is looking.
     window.__moiMcpResult = JSON.stringify({ id: "1", ok: true, value: "first" });
@@ -210,6 +211,16 @@ describe("bridge calls", () => {
     runHeldCommands();
     advance(t, 100);
     assert.deepEqual(replies(ws).slice(1), [{ id: 2, ok: true, value: "second" }]);
+  });
+
+  test("a timeout after the script started says it may still finish and to check the scene first", (t) => {
+    const { ws, window } = connected(t, { holdCommands: true });
+    ws.receive({ id: 1, op: "eval", script: "return 1;" });
+    window.__moiMcpScript = null;   // the command picked the script up and is still running
+    advance(t, 26_000);
+    const [reply] = replies(ws);
+    assert.equal(reply.error.code, "timeout");
+    assert.match(reply.error.message, /may still finish.*check the scene.*before running it again/);
   });
 });
 

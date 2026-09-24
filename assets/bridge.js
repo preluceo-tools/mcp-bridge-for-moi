@@ -362,9 +362,17 @@
 		if ( raw === null || raw === undefined ) {
 			// A safety net only: a running command is refused before dispatch, never waited on.
 			if ( ( new Date() ).getTime() - startedAt > EVAL_TIMEOUT_MS ) {
+				// The command clears the script when it picks it up, so a script still here
+				// never started: withdrawing it means it never will.
+				var started = !w.__moiMcpScript;
 				w.__moiMcpScript = null;
 				busy = false;
-				failReply( msg, 'MoI did not run the script within ' + ( EVAL_TIMEOUT_MS / 1000 ) + 's.' );
+				var secs = EVAL_TIMEOUT_MS / 1000;
+				refuse( msg, 'timeout', started
+					? 'The script started but did not finish within ' + secs + 's. It may still finish and ' +
+						'change the document: check the scene (e.g. a narrow moi_eval query or get_scene) ' +
+						'before running it again.'
+					: 'MoI did not start the script within ' + secs + 's. It did not run and nothing changed.' );
 				pump();
 				return;
 			}
