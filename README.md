@@ -359,8 +359,8 @@ asking and ask you before a destructive one.
 | `get_selection` | *read-only* | Returns whatever you have selected, with the same details, so you can point at things instead of describing them. |
 | `set_selection` | *changing* | Selects objects, so the agent can show you what it means. |
 | `delete_objects` | **destructive** | Deletes exactly the objects named, nothing else. |
-| `get_view` | *read-only* | Takes a picture of a viewport (3D, Top, Front, Right) so the agent can check its own work. It can aim the camera at particular objects for that one picture without moving your view or your selection, and it still works when MoI is minimized. |
-| `set_view` | *changing* | Points one of your viewports at chosen objects, the selection, or the whole scene, optionally from a named angle. |
+| `get_view` | *read-only* | Takes a picture of a viewport (3D, Top, Front, Right) so the agent can check its own work. It can aim the camera at particular objects for that one picture without moving your view or your selection, and it still works when MoI is minimized. If none of the objects named to frame exist, the call is refused and neither the angle nor the camera changes. |
+| `set_view` | *changing* | Points one of your viewports at chosen objects, the selection, or the whole scene, optionally from a named angle. If none of the objects named exist, the call is refused and nothing moves; if only some exist, those are framed and the rest are listed. |
 | `set_viewport_layout` | *changing* | Switches MoI between the four-viewport layout and a single viewport. |
 | `export_objects` | *writes a file* | Writes chosen objects, or the whole scene, to a new file in any format MoI exports (e.g. STEP, OBJ, STL), picked by the extension. It never opens a dialog, never overwrites an existing file, and doesn't write `.3dm` or `.dwg` (use `.dxf`) or into a folder that doesn't exist. Your open document, its name and your selection are left as they were. A mesh format (e.g. OBJ, STL, FBX) takes the full set of mesh settings and leaves them in MoI's mesh dialog (see [Limitations](#limitations)). |
 
@@ -390,6 +390,10 @@ you'll see:
   like the first target), and warns when the face count didn't change, when a union left separate
   pieces, or when nothing was made. An intersection that finds no overlap is an answer, not a
   warning.
+- **A script that fails partway leaves what it made.** Everything a `moi_eval` script created
+  before its error stays in the document. The error lists the ids of those objects, and of any it
+  consumed, so the agent can delete them with `delete_objects`. One <kbd>Ctrl</kbd>+<kbd>Z</kbd>
+  in MoI also undoes the whole call.
 
 ### Error codes
 
