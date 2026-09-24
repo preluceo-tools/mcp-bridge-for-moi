@@ -60,7 +60,9 @@ export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
     "JSON-serialisable. Helpers: capture(fn), toJson(obj), listToJson(list), pt(point), " +
     "bbox(obj), faces(obj), edges(obj). faces/edges list an object's faces or edges as " +
     "{ index, bbox } in getFaces()/getEdges() order; filter the rows yourself and get " +
-    "the item back with obj.getEdges().item(row.index), e.g. to chamfer it. Do not call moi.geometryDatabase.save() — this tool never saves the " +
+    "the item back with obj.getEdges().item(row.index), e.g. to chamfer it. " +
+    "A live object has no isSolid (it reads undefined): test a closed solid with " +
+    "obj.isSolidBRep, or read toJson(obj).isSolid. Do not call moi.geometryDatabase.save() — this tool never saves the " +
     "user's file. If the script throws, the error lists the ids of the objects it created " +
     "or consumed before the throw: they stay in the document. " +
     FACTORY_POINT_NOTE +

@@ -227,6 +227,11 @@ test("moi_eval's description asks for capture around every commit, and no longer
   assert.doesNotMatch(moiEvalTool.description, /always works/);
 });
 
+test("moi_eval's description names isSolidBRep and says a live object has no isSolid", () => {
+  assert.match(moiEvalTool.description, /obj\.isSolidBRep/);
+  assert.match(moiEvalTool.description, /no isSolid \(it reads undefined\)/);
+});
+
 test("assertES5 rejects ES6 syntax and names the script", () => {
   assert.throws(() => assertES5("let x = 1;", "sample"), /sample is not ES5/);
   assert.throws(() => assertES5("var f = () => 1;", "sample"), /sample is not ES5/);
