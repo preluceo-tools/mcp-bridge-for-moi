@@ -17,6 +17,30 @@ export const FACTORY_POINT_NOTE =
   "ignore Height (input 5) unless End pt (input 4) is set, and give a flat circle " +
   "instead of a solid, so check the output's type before using it in a boolean. ";
 
+/** MoI host behaviour the bridge cannot change, one clause per trap. */
+const TRAPS_NOTE =
+  "MoI scripting traps: Undeclared globals (X = …) persist between calls; var declarations " +
+  "do not. Host objects do not enumerate: learn an API from moi_factory_help or MoI's own " +
+  "command scripts (the commands folder of MoI's install folder), not by listing properties. " +
+  "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
+  "with moi.createList() the factory commits nothing. getCreatedObjects() is empty after " +
+  "commit() for move, rotateaxis and polyline: use capture and read created[].id. extrude and " +
+  "loft leave their profile curves in place (delete them); join consumes its inputs. " +
+  "createFrame(origin, xAxis, yAxis) needs all three arguments; its normal (xAxis × yAxis) " +
+  "sets the direction of extrude and box, so a cutter extruded the wrong way misses the part " +
+  "(boolean() then warns). box accepts a rotated frame, so an oriented box needs no separate " +
+  "rotate. A fillet radius of half the height or more on a thin cylinder splits it into two " +
+  "objects. A bare boolean factory leaves its results unnamed and may change their style; " +
+  "boolean() restores both. Keep gaps of 0.5 mm or more between parallel faces: " +
+  "booleanintersection of solids about 0.1 mm apart returns a bogus object instead of nothing. " +
+  "To test two solids for intersection without consuming them, set up booleanintersection, " +
+  "call update(), read getCreatedObjects().length, then cancel(); filter pairs by bounding " +
+  "box first and run at most about 25 tests per call, since more runs past the timeout and " +
+  "blocks MoI. getBoundingBox() on a NURBS curve (or a brep made from one) is the " +
+  "control-hull box; sample evaluatePoint(t) for the real extent. rotateaxis by +θ then −θ " +
+  "restores parts to within about 3e-5 mm, keeping names and styles, so untilt, build, " +
+  "re-tilt is safe. ";
+
 /**
  * Snapshots the document's ids before the agent's script runs, so a script that throws partway
  * can say what it left behind: everything it committed before the throw stays. Only reported,
@@ -72,6 +96,7 @@ export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
     "user's file. If the script throws, the error lists the ids of the objects it created " +
     "or consumed before the throw: they stay in the document. " +
     FACTORY_POINT_NOTE +
+    TRAPS_NOTE +
     ES5_NOTE,
   input: { script: z.string().describe("ES5 source. Use `return` to produce a value.") },
   direct: false,

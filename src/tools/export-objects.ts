@@ -103,7 +103,8 @@ export const exportObjectsTool: Tool<Args, Reply> = {
     "user's selection is borrowed for the call and put back. Without ids, exports the " +
     "whole scene. Never opens a dialog. This is not saving: the open document and its file " +
     "name are untouched, .3dm is refused, and a path that already " +
-    "exists is refused, so no file is ever overwritten. Also refused before MoI is asked: " +
+    "exists is refused, so no file is ever overwritten: give each re-export a new name. " +
+    "Also refused before MoI is asked: " +
     ".dwg, which MoI 4 cannot write (use .dxf), and a folder that does not exist, which " +
     "would leave MoI stuck on an error box. Mesh formats (OBJ, STL, 3DS, FBX, LWO, SKP) " +
     "take the mesh settings of MoI's Meshing options dialog: angle, output, weld, " +

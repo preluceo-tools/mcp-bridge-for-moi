@@ -296,6 +296,13 @@ test("moi_eval's description names the boolean helper and its kinds", () => {
   assert.match(moiEvalTool.description, /boolean\(kind, targets, tools\): kind is 'difference', 'union' or 'intersection'/);
 });
 
+test("moi_eval's description lists the host traps once, with no machine path", () => {
+  const d = moiEvalTool.description;
+  for (const trap of ["createObjectList()", "getBoundingBox()", "cancel()", "createFrame(origin, xAxis, yAxis)", "3e-5 mm"])
+    assert.equal(d.split(trap).length, 2, `${trap} should appear exactly once`);
+  assert.doesNotMatch(d, /[A-Za-z]:\\|Program Files/);
+});
+
 test("boolean refuses an unknown kind or id before committing anything", () => {
   const fake = fakeMoi({ objects: [part], factories: { booleandifference: [] } });
   assert.throws(() => evalReply(`boolean( 'subtract', '${A}', '${B}' );`, fake.moi), /kind must be difference, union or intersection/);
