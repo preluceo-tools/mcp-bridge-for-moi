@@ -7,7 +7,7 @@ import { setSelectionTool } from "./tools/set-selection.js";
 import { deleteObjectsTool } from "./tools/delete-objects.js";
 import { exportObjectsTool } from "./tools/export-objects.js";
 import { setViewTool } from "./tools/set-view.js";
-import { getSceneTool } from "./tools/get-scene.js";
+import { FULL_SCENE_MAX, getSceneTool } from "./tools/get-scene.js";
 import { getSelectionTool } from "./tools/get-selection.js";
 import { moiEvalTool } from "./tools/moi-eval.js";
 import { UNITS } from "./tools/set-units.js";
@@ -108,6 +108,28 @@ test("get_scene and get_selection say which objects are closed solids", () => {
   assert.deepEqual(scene.objects.map((o: { isSolid: boolean }) => o.isSolid), [true, false, false]);
   const sel = runScript(getSelectionTool.script({}), fake.moi);
   assert.deepEqual(sel.objects.map((o: { isSolid: boolean }) => o.isSolid), [true, false]);
+});
+
+test("get_scene lists full records up to its cap, and id, name and type for every object above it", () => {
+  const answer = (count: number) => {
+    const fake = fakeMoi({ objects: Array.from({ length: count }, (_, i) => ({ id: guid(i + 1), name: `part ${i}` })) });
+    const text = (getSceneTool.reply!(runScript(getSceneTool.script({}), fake.moi), {})[0] as { text: string }).text;
+    assert.ok(!text.includes("\n"), "compact JSON");
+    return JSON.parse(text);
+  };
+
+  const full = answer(FULL_SCENE_MAX);
+  assert.equal(full.objectCount, FULL_SCENE_MAX);
+  assert.equal(full.shortened, undefined);
+  assert.equal(full.objects.length, FULL_SCENE_MAX);
+  assert.ok("bbox" in full.objects[0] && "isSolid" in full.objects[0]);
+
+  const over = answer(FULL_SCENE_MAX + 1);
+  assert.equal(over.objectCount, FULL_SCENE_MAX + 1);
+  assert.equal(over.units, "mm");
+  assert.match(over.shortened, /moi_eval/);
+  assert.deepEqual(ids(over.objects), Array.from({ length: FULL_SCENE_MAX + 1 }, (_, i) => guid(i + 1)));
+  assert.deepEqual(Object.keys(over.objects[0]), ["id", "name", "typeName"]);
 });
 
 test("get_selection reports only the selected objects", () => {

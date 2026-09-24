@@ -355,7 +355,7 @@ asking and ask you before a destructive one.
 | `moi_eval` | **destructive** | Runs a piece of JavaScript against MoI's scripting API. This is how the agent actually builds geometry. |
 | `set_units` | *changing* | Gives a document that has no unit system the units you chose (e.g. millimeters, inches). It never changes units a document already has. |
 | `moi_factory_help` | *read-only* | Explains how to use any of MoI's 110 geometry "factories" (box, loft, fillet, …): what each input means, with examples taken from MoI's own scripts. |
-| `get_scene` | *read-only* | Lists every object in the document: id, name, type, whether it is a closed solid (`isSolid`), style, visibility, size, plus the document's units. |
+| `get_scene` | *read-only* | Lists every object in the document: id, name, type, whether it is a closed solid (`isSolid`), style, visibility, size, plus the document's units. On a document of more than 100 objects it still lists every object, but only its id, name and type, and says so; the agent then asks MoI for the details of the objects it needs. |
 | `get_selection` | *read-only* | Returns whatever you have selected, with the same details, so you can point at things instead of describing them. |
 | `set_selection` | *changing* | Selects objects, so the agent can show you what it means. |
 | `delete_objects` | **destructive** | Deletes exactly the objects named, nothing else. |

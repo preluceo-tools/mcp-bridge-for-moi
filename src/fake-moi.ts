@@ -78,7 +78,7 @@ const GUID = /^\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}$
 export type Pt = { x: number; y: number; z: number };
 export type Box = { min: Pt; max: Pt };
 
-type ObjectSpec = { id: string; selected?: boolean; hidden?: boolean; type?: number; solid?: boolean; bbox?: Box | null };
+type ObjectSpec = { id: string; name?: string; selected?: boolean; hidden?: boolean; type?: number; solid?: boolean; bbox?: Box | null };
 type ViewportSpec = Partial<{
   projection: string;
   cameraPt: Pt;
@@ -229,6 +229,7 @@ export function fakeMoi(
     const bbox = spec.bbox === undefined ? { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } } : spec.bbox;
     return {
       id: spec.id,
+      name: spec.name ?? "",
       hidden: spec.hidden ?? false,
       type: spec.type ?? 3,
       /** A property, not a method, as in live MoI (probe-11). */
