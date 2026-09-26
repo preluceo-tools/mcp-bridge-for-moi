@@ -17,29 +17,58 @@ export const FACTORY_POINT_NOTE =
   "ignore Height (input 5) unless End pt (input 4) is set, and give a flat circle " +
   "instead of a solid, so check the output's type before using it in a boolean. ";
 
-/** MoI host behaviour the bridge cannot change, one clause per trap. */
+/** MoI host behaviour the bridge cannot change, one bullet per trap. */
 const TRAPS_NOTE =
-  "MoI scripting traps: Undeclared globals (X = …) persist between calls; var declarations " +
-  "do not. Host objects do not enumerate: learn an API from moi_factory_help or MoI's own " +
-  "command scripts (the commands folder of MoI's install folder), not by listing properties. " +
-  "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
-  "with moi.createList() the factory commits nothing. getCreatedObjects() is empty after " +
-  "commit() for move, rotateaxis and polyline: use capture and read created[].id. extrude and " +
-  "loft leave their profile curves in place (delete them); join consumes its inputs. " +
-  "createFrame(origin, xAxis, yAxis) needs all three arguments; its normal (xAxis × yAxis) " +
-  "sets the direction of extrude and box, so a cutter extruded the wrong way misses the part " +
-  "(boolean() then warns). box accepts a rotated frame, so an oriented box needs no separate " +
-  "rotate. A fillet radius of half the height or more on a thin cylinder splits it into two " +
-  "objects. A bare boolean factory leaves its results unnamed and may change their style; " +
-  "boolean() restores both. Keep gaps of 0.5 mm or more between parallel faces: " +
-  "booleanintersection of solids about 0.1 mm apart returns a bogus object instead of nothing. " +
-  "To test two solids for intersection without consuming them, set up booleanintersection, " +
-  "call update(), read getCreatedObjects().length, then cancel(); filter pairs by bounding " +
-  "box first and run at most about 25 tests per call, since more runs past the timeout and " +
-  "blocks MoI. getBoundingBox() on a NURBS curve (or a brep made from one) is the " +
-  "control-hull box; sample evaluatePoint(t) for the real extent. rotateaxis by +θ then −θ " +
-  "restores parts to within about 3e-5 mm, keeping names and styles, so untilt, build, " +
-  "re-tilt is safe. ";
+  "\nMoI scripting traps:\n" +
+  [
+    "Undeclared globals (X = …) persist between calls; var declarations do not.",
+    "Host objects do not enumerate: learn an API from moi_factory_help or MoI's own command " +
+      "scripts (the commands folder of MoI's install folder), not by listing properties.",
+    "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
+      "with moi.createList() the factory commits nothing.",
+    "A factory's commit() return value means nothing either way: planarsrf returns falsy while " +
+      "succeeding. Count results by capture or a document diff.",
+    "getCreatedObjects() is empty after commit() for move, rotateaxis and polyline: use capture " +
+      "and read created[].id.",
+    "extrude and loft leave their profile curves in place (delete them); join consumes its inputs.",
+    "join over unconnected surfaces returns one object per connected group, so there is no need " +
+      "to group first, and the count of results is a (destructive) connectivity test.",
+    "Where a factory takes an object list, pass the whole list in one call: one planarsrf over " +
+      "2,830 curves took 2.2 s against 50.8 s for one call per curve, and a per-item loop slows " +
+      "as the document grows.",
+    "createFrame(origin, xAxis, yAxis) needs all three arguments; its normal (xAxis × yAxis) " +
+      "sets the direction of extrude and box, so a cutter extruded the wrong way misses the part " +
+      "(boolean() then warns).",
+    "box accepts a rotated frame, so an oriented box needs no separate rotate.",
+    "A fillet radius of half the height or more on a thin cylinder splits it into two objects.",
+    "A bare boolean factory leaves its results unnamed and may change their style; boolean() " +
+      "restores both.",
+    "Keep gaps of 0.5 mm or more between parallel faces: booleanintersection of solids about " +
+      "0.1 mm apart returns a bogus object instead of nothing.",
+    "To test two solids for intersection without consuming them, set up booleanintersection, " +
+      "call update(), read getCreatedObjects().length, then cancel(); filter pairs by bounding " +
+      "box first and run at most about 25 tests per call, since more runs past the timeout and " +
+      "blocks MoI.",
+    "getBoundingBox() on a NURBS curve (or a brep made from one) is the control-hull box; sample " +
+      "evaluatePoint(t) for the real extent.",
+    "rotateaxis by +θ then −θ restores parts to within about 3e-5 mm, keeping names and styles, " +
+      "so untilt, build, re-tilt is safe.",
+    "isClosed works on curves and edges but is undefined on a brep; a solid is closed when " +
+      "getNakedEdges().length === 0 (or use isSolidBRep).",
+    "obj.selected is writable per object and works while a selection lock is held.",
+    "Mesh data enters through moi.geometryDatabase.fileImportSubD(path). fileImport ignores a " +
+      "quad OBJ silently. fileImportSubD returns null even on success.",
+    "fileImportSubD imports all of a file or nothing: one bad component loses every other one. " +
+      "Check the object count afterwards; put independent pieces in separate files if a partial " +
+      "result is better than none.",
+    "moi.filesystem.openFileStream(path, 'r') reads; readLine() is the only reader and handles " +
+      "long lines. On a missing file it still returns a stream and readLine() returns '': check " +
+      "moi.filesystem.fileExists first.",
+    "moi.command.execCommand on a command with a UI returns normally and runs nothing; the " +
+      "command panel is out of a script's reach.",
+  ]
+    .map((t) => `- ${t}\n`)
+    .join("");
 
 /**
  * Snapshots the document's ids before the agent's script runs, so a script that throws partway

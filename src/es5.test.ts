@@ -327,9 +327,12 @@ test("moi_eval's description names the boolean helper and its kinds", () => {
 
 test("moi_eval's description lists the host traps once, with no machine path", () => {
   const d = moiEvalTool.description;
-  for (const trap of ["createObjectList()", "getBoundingBox()", "cancel()", "createFrame(origin, xAxis, yAxis)", "3e-5 mm"])
+  for (const trap of ["createObjectList()", "getBoundingBox()", "cancel()", "createFrame(origin, xAxis, yAxis)", "3e-5 mm",
+    "means nothing either way", "fileImport ignores a quad OBJ", "all of a file or nothing", "obj.selected",
+    "openFileStream(path, 'r')", "50.8 s", "one object per connected group", "execCommand", "getNakedEdges()"])
     assert.equal(d.split(trap).length, 2, `${trap} should appear exactly once`);
   assert.doesNotMatch(d, /[A-Za-z]:\\|Program Files/);
+  assert.equal(d.match(/^- /gm)?.length, 22, "the traps should be one bullet each");
 });
 
 test("boolean refuses an unknown kind or id before committing anything", () => {
