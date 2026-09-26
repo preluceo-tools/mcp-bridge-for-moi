@@ -16,6 +16,30 @@ export const FACTORIES: {
 );
 
 /**
+ * Hand-written notes on the object surface, confirmed against live MoI. Host objects
+ * enumerate nothing, so these names are the only reference there is. Served locally.
+ */
+export const REFERENCE: Record<string, string> = {
+  object:
+    "Objects (from getObjects(), findById or capture) list nothing: for (k in obj) is empty on " +
+    "a working object, so this is the member list. id, type; name (writable string); " +
+    "styleIndex (writable number, see 'style'); selected (writable boolean, and it still " +
+    "works while a selection lock is held); isSolidBRep; getEdges(), getFaces(), " +
+    "getNakedEdges() (lists with length and item(i)); getBoundingBox(). isClosed is for " +
+    "curves and edges only: on a brep it is undefined, so test a solid with " +
+    "obj.getNakedEdges().length === 0.",
+  edge:
+    "Edges (obj.getEdges().item(i)) enumerate nothing either. An edge has no face1 " +
+    "(undefined), and edge.getFaces() throws. isClosed works on edges and curves.",
+  style:
+    "moi.geometryDatabase.getObjectStyles() lists the document's styles, each with name " +
+    "and color; a fresh document has 7, Default first (index 0). moi.objectStyles is " +
+    "undefined. Put an object on a style with obj.styleIndex = i. The list has add, but no " +
+    "working signature is known: add(name), add(name, color) and add(style) all return " +
+    "null and add nothing, so use one of the existing styles or object names instead.",
+};
+
+/**
  * The bundled factory list, plus a gap report. Answers without a MoI session, which is
  * why it is served locally rather than from the bridge.
  */
@@ -28,11 +52,14 @@ function factoryIndex(): string {
       count: names.length,
       factories: FACTORIES.factories,
       handProbed: documented,
+      reference: Object.keys(REFERENCE),
       note:
         "numInputs is the count at creation time; the curve family starts at 0 and grows " +
         "as createInput is called. Call this tool with a name for worked examples from " +
         "MoI's own scripts. Factories listed under handProbed have notes here because " +
-        "MoI's scripts document them only indirectly.",
+        "MoI's scripts document them only indirectly. The names under reference are not " +
+        "factories: call this tool with one for notes on objects, edges and styles, whose " +
+        "members cannot be listed from a script.",
     },
     null,
     2,
@@ -195,12 +222,17 @@ export const moiFactoryHelpTool: Tool<Args, unknown> = {
     "positional inputs, which are otherwise undocumented. Pass full:true for the " +
     "complete source when an index is passed as an argument rather than written " +
     "literally. With no name, lists all known factories and reports any that MoI's " +
-    "own scripts do not document.",
+    "own scripts do not document. The names 'object', 'edge' and 'style' answer with " +
+    "notes on the object surface instead (members, edges, faces, styles), since host " +
+    "objects cannot list their own members.",
   input: {
     name: z
       .string()
       .optional()
-      .describe("Factory name, e.g. 'loft'. Omit to list every known factory."),
+      .describe(
+        "Factory name, e.g. 'loft', or 'object', 'edge' or 'style' for the object surface. " +
+          "Omit to list every known factory.",
+      ),
     full: z
       .boolean()
       .optional()
@@ -209,6 +241,10 @@ export const moiFactoryHelpTool: Tool<Args, unknown> = {
   direct: true,
   annotations: READ_ONLY,
   // Needs no MoI, but `runTool` still reports a server conflict: the user has to hear about it.
-  local: ({ name }) => (name ? undefined : [{ type: "text", text: factoryIndex() }]),
+  local: ({ name }) => {
+    if (!name) return [{ type: "text", text: factoryIndex() }];
+    if (Object.hasOwn(REFERENCE, name)) return [{ type: "text", text: REFERENCE[name] }];
+    return undefined;
+  },
   script: ({ name, full }) => factoryHelp(name ?? "", full === true),
 };

@@ -22,8 +22,9 @@ const TRAPS_NOTE =
   "\nMoI scripting traps:\n" +
   [
     "Undeclared globals (X = …) persist between calls; var declarations do not.",
-    "Host objects do not enumerate: learn an API from moi_factory_help or MoI's own command " +
-      "scripts (the commands folder of MoI's install folder), not by listing properties.",
+    "Host objects do not enumerate: learn an API from moi_factory_help (a factory name, or " +
+      "'object', 'edge' or 'style' for the object surface) or MoI's own command scripts (the " +
+      "commands folder of MoI's install folder), not by listing properties.",
     "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
       "with moi.createList() the factory commits nothing.",
     "A factory's commit() return value means nothing either way: planarsrf returns falsy while " +

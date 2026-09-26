@@ -215,7 +215,20 @@ test("moi_factory_help with no name answers the index without MoI", async () => 
   const index = JSON.parse(text(r));
   assert.ok(index.count > 0);
   assert.equal(Object.keys(index.factories).length, index.count);
+  assert.deepEqual(index.reference, ["object", "edge", "style"]);
 });
+
+for (const [name, marker] of [
+  ["object", /getNakedEdges\(\)\.length === 0/],
+  ["edge", /no face1/],
+  ["style", /getObjectStyles\(\)/],
+] as const) {
+  test(`moi_factory_help ${name} answers its notes without MoI`, async () => {
+    const r = await call("moi_factory_help", { name });
+    assert.notEqual(r.isError, true);
+    assert.match(text(r), marker);
+  });
+}
 
 for (const [name, args] of [
   ["moi_eval", { script: "return 1;" }],
