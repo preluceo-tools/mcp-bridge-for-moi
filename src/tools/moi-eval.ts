@@ -113,8 +113,11 @@ export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
     "catch ( e ) { throw __moiMcpLeftovers( e ); }\n" +
     "return { value: ( __moiMcpValue === undefined ? null : __moiMcpValue ), " +
     "captures: __moiMcpCaptures.count, warnings: __moiMcpCaptures.warnings };",
-  reply: ({ value, captures, warnings }) => {
+  reply: ({ value, captures, warnings }, { script }) => {
     const content = asJson(value);
+    // A word check, not a parse: a `return` anywhere, even in a nested function, suppresses it.
+    if (value === null && !/\breturn\b/.test(script))
+      content.push({ type: "text", text: "The script has no `return`, so its last expression was not returned." });
     if (warnings.length)
       content.push({
         type: "text",

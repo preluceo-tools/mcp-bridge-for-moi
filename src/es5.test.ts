@@ -189,7 +189,15 @@ test("capture around nothing warns, and moi_eval repeats the warning after the v
 test("a moi_eval with no warning replies with one block, as before", () => {
   const script = `return capture( function () { moi.__add( { id: '${guid(1)}' } ); } ).created.length;`;
   assert.deepEqual(evalReply(script, fakeMoi().moi), [{ type: "text", text: "1" }]);
-  assert.deepEqual(evalReply("var x = 2;", fakeMoi().moi), [{ type: "text", text: "null" }]);
+});
+
+test("a null moi_eval result from a script with no return carries a hint; one with return does not", () => {
+  const hint = { type: "text", text: "The script has no `return`, so its last expression was not returned." };
+  assert.deepEqual(evalReply("1 + 1", fakeMoi().moi), [{ type: "text", text: "null" }, hint]);
+  assert.deepEqual(evalReply("return null;", fakeMoi().moi), [{ type: "text", text: "null" }]);
+  const content = evalReply("capture( function () {} );", fakeMoi().moi);
+  assert.deepEqual(content.slice(0, 2), [{ type: "text", text: "null" }, hint]);
+  assert.match((content[2] as { text: string }).text, /^Warning \(capture 1 of 1\)/);
 });
 
 test("a moi_eval that throws after creating an object names what it left behind", () => {
