@@ -126,9 +126,11 @@ test("moi_eval and export_objects say no_units and set_units; set_units says it 
     const gated = t.name === "moi_eval" || t.name === "export_objects";
     assert.equal(TOOLS.find((x) => x.name === t.name)!.needsUnits === true, gated, `${t.name} needsUnits`);
     assert.equal(t.description?.includes(NO_UNITS_NOTE), gated, `${t.name} no_units note`);
-    if (gated) assert.match(t.description ?? "", /no_units.*set_units/);
+    if (gated) assert.match(t.description ?? "", /no_units.*ask the user.*testing.*Millimeters/);
   }
-  assert.match(tools.find((t) => t.name === "set_units")!.description ?? "", /only settles units and never converts/);
+  const setUnits = tools.find((t) => t.name === "set_units")!.description ?? "";
+  assert.match(setUnits, /only settles units and never converts/);
+  assert.match(setUnits, /Ask the user.*testing.*Millimeters/);
 });
 
 // A refusal is a schema error, never a call to MoI: with no bridge, a call that got past

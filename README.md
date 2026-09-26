@@ -202,7 +202,8 @@ The other 103 are each committed with real inputs, and their output checked, by
 - **A document with no unit system has to get one first.** While the open document has no
   unit system, `moi_eval` and `export_objects` answer `[no_units]`, so nothing is modelled or
   exported in numbers that mean nothing. The agent asks you which units to use (millimeters,
-  centimeters, meters, kilometers, inches, feet or miles) and sets them with `set_units`. Looking
+  centimeters, meters, kilometers, inches, feet or miles) and sets them with `set_units`. When the
+  agent is only testing or probing MoI, not modelling for you, it sets millimeters without asking. Looking
   at the document works as before. `set_units` never changes units a document already has;
   change those yourself in MoI's Options. Set a default unit system in MoI (see [Setup](#setup))
   and new documents never ask.
@@ -402,7 +403,7 @@ A refused or failed call starts with its code in brackets, e.g. `[no_units]`:
 | Code | What it means |
 |---|---|
 | `bad_request` | The server refused the call before asking MoI, because its arguments cannot mean anything: e.g. `padding` without a `frame` (on `get_view` or `set_view`), a real `frame` or an `angle` with the `get_view` window shot, or an export path that already exists, ends in `.dwg`, or sits in a folder that doesn't exist, or mesh settings on a format that isn't meshed. |
-| `no_units` | A modelling or export call on a document with no unit system. The agent asks you which units to use and calls `set_units`. |
+| `no_units` | A modelling or export call on a document with no unit system. The agent asks you which units to use and calls `set_units`; when it is only testing, it sets millimeters without asking. |
 | `units_set` | `set_units` on a document that already has units. Nothing changed; to change units, use MoI's Options. |
 | `command_running` | You have a command running in MoI, so a call that would change something is refused until you finish or cancel it. |
 | `no_session` | MoI isn't connected to the server. |

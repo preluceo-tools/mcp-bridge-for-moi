@@ -48,6 +48,7 @@ test("on a unitless document moi_eval and export_objects answer [no_units] and t
     assert.equal(r.isError, true);
     assert.match(text(r), /^\[no_units\] /);
     for (const name of [...UNITS, "set_units", "Options > General > Units options"]) assert.ok(text(r).includes(name), name);
+    assert.match(text(r), /Ask the user.*testing or probing.*Millimeters without asking/);
     assert.deepEqual(fake.log, [], `${tool.name} touched the document`);
     assert.deepEqual(fake.exports, []);
     assert.deepEqual(ids(fake.objects), [guid(1)]);

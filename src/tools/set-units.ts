@@ -8,17 +8,22 @@ export const NO_UNITS = "No unit system";
 /** MoI's seven unit systems, in its own order and spelling. `NO_UNITS` is not offered. */
 export const UNITS = ["Millimeters", "Centimeters", "Meters", "Kilometers", "Inches", "Feet", "Miles"] as const;
 
+/** The one case the agent settles units without asking: its own tests on a scratch document. */
+const TESTING_EXCEPTION =
+  "Only when you are testing or probing MoI yourself, not modelling for the user, call set_units " +
+  "with Millimeters without asking.";
+
 const SET_IN_MOI = "a default unit system in MoI (Options > General > Units options)";
 
 export const NO_UNITS_MESSAGE =
   `The open document has no unit system, so its numbers mean nothing yet. Ask the user which ` +
   `units to work in — ${UNITS.join(", ")} — then call set_units with their choice and try ` +
-  `again. Setting ${SET_IN_MOI} stops new documents asking.`;
+  `again. ${TESTING_EXCEPTION} Setting ${SET_IN_MOI} stops new documents asking.`;
 
 /** Appended to the description of every tool with `needsUnits`. */
 export const NO_UNITS_NOTE =
   " Refused with no_units while the document has no unit system — ask the user which units " +
-  "to use and call set_units, then try again.";
+  "to use and call set_units, then try again. " + TESTING_EXCEPTION;
 
 type Reply = { set: boolean; units: string };
 
@@ -32,11 +37,15 @@ export const setUnitsTool: Tool<{ units: (typeof UNITS)[number] }, Reply> = {
   name: "set_units",
   description:
     "Set the unit system of an open document that has none, e.g. after moi_eval or " +
-    "export_objects answered no_units. Ask the user which units first. It only settles units " +
-    "and never converts them: on a document that already has units it changes nothing and " +
-    "is refused with units_set, naming the current ones. Replies with the units MoI now reports.",
+    "export_objects answered no_units. Ask the user which units first; only when you are testing " +
+    "or probing MoI yourself, not modelling for the user, choose Millimeters without asking. " +
+    "It only settles units and never converts them: on a document that already has units it " +
+    "changes nothing and is refused with units_set, naming the current ones. Replies with the " +
+    "units MoI now reports.",
   input: {
-    units: z.enum(UNITS).describe("The unit system the user chose, in MoI's own spelling."),
+    units: z
+      .enum(UNITS)
+      .describe("The unit system the user chose, or Millimeters when only testing; MoI's own spelling."),
   },
   direct: false,
   annotations: CHANGING,
