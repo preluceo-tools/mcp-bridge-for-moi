@@ -4,6 +4,30 @@ What changed in each release of mcp-bridge-for-moi. Versions follow
 [Semantic Versioning](https://semver.org/); the format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - 2026-09-26
+
+No bridge change in this release: updating the server is enough.
+
+### Added
+
+- `moi_factory_help` answers for `object`, `edge` and `style` with hand-written notes on their
+  members (MoI's objects list none of their own), without a MoI session. The index names them.
+- When a `moi_eval` result is `null` and the script has no `return`, the reply says the last
+  expression was not returned.
+- Nine more MoI scripting traps in the `moi_eval` description: `commit()` return values, mesh
+  import through `fileImportSubD`, all-or-nothing imports, writable `obj.selected`, reading files,
+  whole-list factory calls, `join` returning one object per connected group, `execCommand` on
+  commands with a UI, and `isClosed` on breps.
+
+### Changed
+
+- The traps in the `moi_eval` description are one bullet per line instead of one paragraph.
+- When a `moi_eval` script throws, each list of created or consumed ids names at most 10 ids and
+  gives the count of the rest, so a script that fails on a large document no longer returns an
+  oversized error.
+- On a document with no unit system, the agent may set millimeters itself when it is only
+  testing. Otherwise it still asks you. The refusal itself is unchanged.
+
 ## [0.3.0] - 2026-09-24
 
 The bridge protocol changes in this release: install the bridge again after updating (see

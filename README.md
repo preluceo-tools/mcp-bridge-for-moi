@@ -355,7 +355,7 @@ asking and ask you before a destructive one.
 |---|---|---|
 | `moi_eval` | **destructive** | Runs a piece of JavaScript against MoI's scripting API. This is how the agent actually builds geometry. |
 | `set_units` | *changing* | Gives a document that has no unit system the units you chose (e.g. millimeters, inches). It never changes units a document already has. |
-| `moi_factory_help` | *read-only* | Explains how to use any of MoI's 110 geometry "factories" (box, loft, fillet, …): what each input means, with examples taken from MoI's own scripts. |
+| `moi_factory_help` | *read-only* | Explains how to use any of MoI's 110 geometry "factories" (box, loft, fillet, …): what each input means, with examples taken from MoI's own scripts. Also has notes on objects, edges and styles (`object`, `edge`, `style`). |
 | `get_scene` | *read-only* | Lists every object in the document: id, name, type, whether it is a closed solid (`isSolid`), style, visibility, size, plus the document's units. On a document of more than 100 objects it still lists every object, but only its id, name and type, and says so; the agent then asks MoI for the details of the objects it needs. |
 | `get_selection` | *read-only* | Returns whatever you have selected, with the same details, so you can point at things instead of describing them. |
 | `set_selection` | *changing* | Selects objects, so the agent can show you what it means. |
@@ -391,9 +391,14 @@ you'll see:
   like the first target), and warns when the face count didn't change, when a union left separate
   pieces, or when nothing was made. An intersection that finds no overlap is an answer, not a
   warning.
+- **A script must `return` its result.** A script whose last line is a bare expression returns
+  `null`. When the result is `null` and the script has no `return`, `moi_eval` says so.
+- **MoI objects don't list their members.** `moi_factory_help` answers for `object`, `edge` and
+  `style` with notes on what those have, as well as for every factory.
 - **A script that fails partway leaves what it made.** Everything a `moi_eval` script created
   before its error stays in the document. The error lists the ids of those objects, and of any it
-  consumed, so the agent can delete them with `delete_objects`. One <kbd>Ctrl</kbd>+<kbd>Z</kbd>
+  consumed, so the agent can delete them with `delete_objects`. Each list names at most 10 ids and
+  gives the count of the rest. One <kbd>Ctrl</kbd>+<kbd>Z</kbd>
   in MoI also undoes the whole call.
 
 ### Error codes
