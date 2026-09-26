@@ -49,6 +49,9 @@ const TRAPS_NOTE =
 const LEFTOVERS = `
 var __moiMcpBefore = {}, __moiMcpObjs = moi.geometryDatabase.getObjects();
 for ( var __i = 0; __i < __moiMcpObjs.length; ++__i ) __moiMcpBefore[ __moiMcpObjs.item( __i ).id ] = true;
+function __moiMcpIdList( ids ) {
+	return ids.slice( 0, 10 ).join( ', ' ) + ( ids.length > 10 ? ' \\u2026 and ' + ( ids.length - 10 ) + ' more' : '' );
+}
 function __moiMcpLeftovers( e ) {
 	var msg = ( e && e.message ) ? String( e.message ) : String( e );
 	var now = moi.geometryDatabase.getObjects(), made = [], gone = [];
@@ -59,8 +62,8 @@ function __moiMcpLeftovers( e ) {
 	}
 	for ( var k in __moiMcpBefore ) gone.push( k );
 	if ( !made.length && !gone.length ) return e;
-	if ( made.length ) msg += '\\nBefore it threw, the script created ' + made.length + ' object(s) that are still in the document: ' + made.join( ', ' ) + '. Delete them with delete_objects if they are not wanted.';
-	if ( gone.length ) msg += '\\nBefore it threw, the script consumed ' + gone.length + ' object(s): ' + gone.join( ', ' ) + '.';
+	if ( made.length ) msg += '\\nBefore it threw, the script created ' + made.length + ' object(s) that are still in the document: ' + __moiMcpIdList( made ) + '. Delete them with delete_objects if they are not wanted.';
+	if ( gone.length ) msg += '\\nBefore it threw, the script consumed ' + gone.length + ' object(s): ' + __moiMcpIdList( gone ) + '.';
 	return new Error( msg + '\\nOne Ctrl+Z in MoI undoes this whole call.' );
 }
 `;

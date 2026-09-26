@@ -208,6 +208,27 @@ test("a moi_eval that throws after creating an object names what it left behind"
   );
 });
 
+test("a throwing moi_eval names at most 10 ids per list, with exact counts", () => {
+  const fake = fakeMoi({ objects: Array.from({ length: 2000 }, (_, i) => ({ id: guid(i + 1) })) });
+  const script =
+    "var db = moi.geometryDatabase, all = db.getObjects(), ids = [];" +
+    " for ( var i = 0; i < all.length; ++i ) ids.push( all.item( i ).id );" +
+    " for ( i = 0; i < ids.length; ++i ) db.removeObject( db.findObject( ids[ i ] ) );" +
+    ` moi.__add( { id: '${guid(3001)}' } ); moi.__add( { id: '${guid(3002)}' } ); moi.__add( { id: '${guid(3003)}' } );` +
+    " throw new Error( 'boom' );";
+  assert.throws(
+    () => runScript(moiEvalTool.script({ script }), fake.moi),
+    (e: Error) => {
+      const gone = e.message.split("\n").find((l) => l.includes("consumed"))!;
+      assert.equal(gone.match(/[0-9a-f]{8}-[0-9a-f-]{27}/gi)?.length, 10);
+      assert.match(gone, /consumed 2000 object\(s\): .* … and 1990 more\.$/);
+      assert.ok(e.message.includes(`created 3 object(s) that are still in the document: ${guid(3001)}, ${guid(3002)}, ${guid(3003)}. Delete`));
+      assert.match(e.message, /Ctrl\+Z/);
+      return true;
+    },
+  );
+});
+
 test("a moi_eval that throws before changing anything rethrows the error as it was", () => {
   const thrown = new Error("nope");
   const moi = fakeMoi({ objects: [{ id: guid(1) }] }).moi as unknown as Record<string, unknown>;
