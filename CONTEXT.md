@@ -107,7 +107,9 @@ _Avoid_: created objects, result, diff
 **Unit system**:
 What the numbers in the document mean — one of MoI's named systems (`Millimeters` … `Miles`), or
 none. A document with none can be looked at but not modelled in or exported through the tools:
-the agent asks the user and settles it first. The agent settles a unit system; it never
+the agent asks the user and settles it first. The one exception is the agent's own testing or
+probing, where the document is scratch and not the user's model: there it settles Millimeters
+without asking. The agent settles a unit system; it never
 converts one, because converting rescales geometry and replaces every object's id.
 _Avoid_: units setting, scale, measurement system
 
