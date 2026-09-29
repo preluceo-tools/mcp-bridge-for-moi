@@ -416,7 +416,7 @@ that asks for them.
 What a tool returns stays in the conversation and is sent again with every later request, like the
 definitions. Results come in three sizes:
 
-- **Small and fixed:** `get_selection`, `set_units`, `set_viewport_layout`.
+- **Small and fixed:** `set_units`, `set_viewport_layout`.
 - **Bounded by the server or by the agent's own request:** `get_scene` lists only id, name and type
   once a document has more than 100 objects; `get_view` draws its picture at most 2,048 pixels on
   the long edge (1,024 by default) and refuses an image over a size ceiling. `set_selection`,
@@ -424,7 +424,9 @@ definitions. Results come in three sizes:
   request the agent sends, not with the scene.
 - **Not bounded by the server:** `moi_eval` returns whatever the script returns; `moi_factory_help`
   with `full` returns the factory's whole source; `export_objects` replies are as large as what they
-  report. A careless script can return a large result.
+  report. `get_selection` returns a full record for every selected object with no cap, so its reply
+  grows with what the user has selected, which the agent does not control and the server does not
+  limit. A careless script can return a large result.
 
 Your client may warn about or cut off a large result; for Claude Code, see
 [MCP output limits](https://code.claude.com/docs/en/mcp).
