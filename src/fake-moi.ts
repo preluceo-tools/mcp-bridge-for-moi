@@ -11,6 +11,9 @@
 `createFactory` throws on an unknown name (docs/research/probe-07-factory-coverage.md). Files,
 read or written, live in memory only.
  *
+ * It also exports `hostOn`, the fake host: a `SessionHost` stand-in that runs each script against a
+ * fake moi.
+ *
  * `moi.ui.sidePane.window` is the fake window the shipped bridge runs in: `setTimeout` (driven by
  * `node:test` mock timers), and a `WebSocket` and `XMLHttpRequest` the test answers.
  *
@@ -64,12 +67,6 @@ export const hostOn = (moi: any, refuse?: "command_running") =>
     ensureOwner: async () => {},
     setClient: () => {},
   }) as unknown as SessionHost;
-
-/** The README's text under the heading line `heading` (e.g. "## Token use"), up to the next heading. */
-export const readmeSection = (heading: string) =>
-  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "README.md"), "utf8")
-    .split(`\n${heading}`)[1]
-    .split("\n#")[0];
 
 /** A real-looking object id, brace-wrapped. `guid(0)` is the all-zero id MoI refuses. */
 export const guid = (n: number) => `{00000000-0000-0000-0000-${n.toString(16).padStart(12, "0")}}`;

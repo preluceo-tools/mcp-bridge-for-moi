@@ -10,6 +10,7 @@
   "files": [
     "dist",
     "!dist/fake-moi.*",
+    "!dist/readme-section.*",
     "!dist/sandbox.*",
     "!dist/es5.*",
     "!dist/*.test.*",

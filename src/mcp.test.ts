@@ -7,13 +7,13 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 
 const { SessionHost } = await import("./session.js");
-const { fakeMoi, hostOn, readmeSection } = await import("./fake-moi.js");
+const { fakeMoi, hostOn } = await import("./fake-moi.js");
+const { readmeSection } = await import("./readme-section.js");
 const { LAYOUTS } = await import("./scripts.js");
 const { buildServer, TOOLS, descriptionOf } = await import("./index.js");
 const { NO_UNITS_NOTE, NO_UNITS } = await import("./tools/set-units.js");
 const { FACTORY_POINT_NOTE, REFERENCE } = await import("./tools/moi-factory-help.js");
 const { READ_ONLY, CHANGING, WRITES_FILE, DESTRUCTIVE } = await import("./tool.js");
-const README = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf8");
 
 // A started host with no bridge attached: what an MCP client sees before MoI connects.
 let host: InstanceType<typeof SessionHost>;
@@ -113,7 +113,7 @@ test("the README's Kind column names the annotation constant each tool declares"
 // Two wordings of one warning, one for the agent and one for the user: they must name the same
 // inputs and the same symptom.
 test("moi_eval's point-input warning and the README's factory quirk say the same thing", () => {
-  const quirk = README.split("### Factory quirks")[1].split("\n- **")[1];
+  const quirk = readmeSection("### Factory quirks").split("\n- **")[1];
   for (const word of ["cylinder", "cone", "Height", "End pt", "flat circle", "boolean"]) {
     assert.ok(FACTORY_POINT_NOTE.includes(word), `the description's note lacks ${word}`);
     assert.ok(quirk.includes(word), `the README's quirk lacks ${word}`);

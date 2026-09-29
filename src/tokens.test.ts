@@ -4,7 +4,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { SessionHost } from "./session.js";
 import { buildServer, TOOLS } from "./index.js";
-import { readmeSection } from "./fake-moi.js";
+import { readmeSection } from "./readme-section.js";
 import { toolDefinitions, tokensReport, sizeOf, totalSize, estimate, TOOL_DEFINITIONS_CEILING } from "./tokens.js";
 
 test("tokens --json prints the tools, names, descriptions and schemas the server lists", async () => {
