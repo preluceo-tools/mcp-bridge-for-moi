@@ -10,7 +10,7 @@ const { SessionHost } = await import("./session.js");
 const { LAYOUTS } = await import("./scripts.js");
 const { buildServer, TOOLS, descriptionOf } = await import("./index.js");
 const { NO_UNITS_NOTE } = await import("./tools/set-units.js");
-const { FACTORY_POINT_NOTE } = await import("./tools/moi-eval.js");
+const { FACTORY_POINT_NOTE, REFERENCE } = await import("./tools/moi-factory-help.js");
 const { READ_ONLY, CHANGING, WRITES_FILE, DESTRUCTIVE } = await import("./tool.js");
 const README = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf8");
 
@@ -116,7 +116,12 @@ test("moi_eval's point-input warning and the README's factory quirk say the same
     assert.ok(FACTORY_POINT_NOTE.includes(word), `the description's note lacks ${word}`);
     assert.ok(quirk.includes(word), `the README's quirk lacks ${word}`);
   }
-  assert.ok(TOOLS.find((t) => t.name === "moi_eval")!.description.includes(FACTORY_POINT_NOTE));
+  assert.ok(REFERENCE.traps.includes(FACTORY_POINT_NOTE));
+});
+
+// Claude Code cuts every tool description at 2,048 characters, and the refusal notes sit at the end.
+test("every tool description, refusal notes included, fits Claude Code's 2,048-character cap", () => {
+  for (const t of TOOLS) assert.ok(descriptionOf(t).length <= 2048, `${t.name} is ${descriptionOf(t).length} characters`);
 });
 
 // The two tools a size enters or leaves by are refused on a unitless document, and say so.
@@ -215,7 +220,7 @@ test("moi_factory_help with no name answers the index without MoI", async () => 
   const index = JSON.parse(text(r));
   assert.ok(index.count > 0);
   assert.equal(Object.keys(index.factories).length, index.count);
-  assert.deepEqual(index.reference, ["object", "edge", "style"]);
+  assert.deepEqual(index.reference, ["traps", "helpers", "object", "edge", "style"]);
 });
 
 for (const [name, marker] of [

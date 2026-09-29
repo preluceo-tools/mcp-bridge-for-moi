@@ -4,6 +4,16 @@ What changed in each release of mcp-bridge-for-moi. Versions follow
 [Semantic Versioning](https://semver.org/); the format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Changed
+
+- `moi_eval`'s description now fits Claude Code's 2,048-character cap on tool descriptions (it was
+  6,324 characters, so the traps and refusal notes at its end were cut off). The MoI scripting traps
+  and the helper details moved to `moi_factory_help('traps')` and `moi_factory_help('helpers')`.
+  A test keeps every tool description within the cap.
+
+
 ## [0.4.0] - 2026-09-26
 
 No bridge change in this release: updating the server is enough.

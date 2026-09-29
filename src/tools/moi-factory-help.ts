@@ -16,10 +16,97 @@ export const FACTORIES: {
 );
 
 /**
+ * The README says the same thing to the user under "Factory quirks". Reword one, reword both;
+ * a test checks they still name the same inputs.
+ */
+export const FACTORY_POINT_NOTE =
+  "Some primitive factories need their point input, not the number: cylinder and cone " +
+  "ignore Height (input 5) unless End pt (input 4) is set, and give a flat circle " +
+  "instead of a solid, so check the output's type before using it in a boolean. ";
+
+/** MoI host behaviour the bridge cannot change, one bullet per trap. */
+const TRAPS_NOTE =
+  "\nMoI scripting traps:\n" +
+  [
+    "Undeclared globals (X = …) persist between calls; var declarations do not.",
+    "Host objects do not enumerate: learn an API from moi_factory_help (a factory name, or " +
+      "'object', 'edge' or 'style' for the object surface) or MoI's own command scripts (the " +
+      "commands folder of MoI's install folder), not by listing properties.",
+    "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
+      "with moi.createList() the factory commits nothing.",
+    "A factory's commit() return value means nothing either way: planarsrf returns falsy while " +
+      "succeeding. Count results by capture or a document diff.",
+    "getCreatedObjects() is empty after commit() for move, rotateaxis and polyline: use capture " +
+      "and read created[].id.",
+    "extrude and loft leave their profile curves in place (delete them); join consumes its inputs.",
+    "join over unconnected surfaces returns one object per connected group, so there is no need " +
+      "to group first, and the count of results is a (destructive) connectivity test.",
+    "Where a factory takes an object list, pass the whole list in one call: one planarsrf over " +
+      "2,830 curves took 2.2 s against 50.8 s for one call per curve, and a per-item loop slows " +
+      "as the document grows.",
+    "createFrame(origin, xAxis, yAxis) needs all three arguments; its normal (xAxis × yAxis) " +
+      "sets the direction of extrude and box, so a cutter extruded the wrong way misses the part " +
+      "(boolean() then warns).",
+    "box accepts a rotated frame, so an oriented box needs no separate rotate.",
+    "A fillet radius of half the height or more on a thin cylinder splits it into two objects.",
+    "A bare boolean factory leaves its results unnamed and may change their style; boolean() " +
+      "restores both.",
+    "Keep gaps of 0.5 mm or more between parallel faces: booleanintersection of solids about " +
+      "0.1 mm apart returns a bogus object instead of nothing.",
+    "To test two solids for intersection without consuming them, set up booleanintersection, " +
+      "call update(), read getCreatedObjects().length, then cancel(); filter pairs by bounding " +
+      "box first and run at most about 25 tests per call, since more runs past the timeout and " +
+      "blocks MoI.",
+    "getBoundingBox() on a NURBS curve (or a brep made from one) is the control-hull box; sample " +
+      "evaluatePoint(t) for the real extent.",
+    "rotateaxis by +θ then −θ restores parts to within about 3e-5 mm, keeping names and styles, " +
+      "so untilt, build, re-tilt is safe.",
+    "isClosed works on curves and edges but is undefined on a brep; a solid is closed when " +
+      "getNakedEdges().length === 0 (or use isSolidBRep).",
+    "obj.selected is writable per object and works while a selection lock is held.",
+    "Mesh data enters through moi.geometryDatabase.fileImportSubD(path). fileImport ignores a " +
+      "quad OBJ silently. fileImportSubD returns null even on success.",
+    "fileImportSubD imports all of a file or nothing: one bad component loses every other one. " +
+      "Check the object count afterwards; put independent pieces in separate files if a partial " +
+      "result is better than none.",
+    "moi.filesystem.openFileStream(path, 'r') reads; readLine() is the only reader and handles " +
+      "long lines. On a missing file it still returns a stream and readLine() returns '': check " +
+      "moi.filesystem.fileExists first.",
+    "moi.command.execCommand on a command with a UI returns normally and runs nothing; the " +
+      "command panel is out of a script's reach.",
+  ]
+    .map((t) => `- ${t}\n`)
+    .join("");
+
+/** The helpers moi_eval preloads, in full. moi_eval's own description only names them. */
+const HELPERS_NOTE =
+  "faces(obj) and edges(obj) list an object's faces or edges as { index, bbox } in " +
+  "getFaces()/getEdges() order; filter the rows yourself and get the item back with " +
+  "obj.getEdges().item(row.index), e.g. to chamfer it. " +
+  "For booleans use boolean(kind, targets, tools): kind is 'difference', 'union' or " +
+  "'intersection', targets and tools are ids or objects, one or an array (a union takes " +
+  "them all as targets). It runs the factory through capture and returns its record with " +
+  "every result in created, named and styled like the first target, and warns when a " +
+  "difference or union left the face count unchanged (the cutter most likely missed), a " +
+  "union left separate objects, or nothing was created. An empty intersection is not a warning. " +
+  "capture(fn) returns { result, created, consumed }: created describes the new objects and " +
+  "consumed lists the ids that are gone. Capture warns about a fillet, chamfer or shell too " +
+  "large for the geometry, which MoI commits without any error. " +
+  "A live object has no isSolid (it reads undefined): test a closed solid with " +
+  "obj.isSolidBRep, or read toJson(obj).isSolid. " +
+  "MoI runs ECMAScript 5 only: no let/const, no arrow functions, no Promise, no fetch. " +
+  "Objects are addressed by their `id` — a brace-wrapped GUID — and resolved with " +
+  "moi.geometryDatabase.findObject( id ). An object's id changes whenever an operation " +
+  "consumes it (a move, a fillet and a boolean all produce new objects with new ids), so " +
+  "read the ids back out of the result rather than reusing the ones you sent.";
+
+/**
  * Hand-written notes on the object surface, confirmed against live MoI. Host objects
  * enumerate nothing, so these names are the only reference there is. Served locally.
  */
 export const REFERENCE: Record<string, string> = {
+  traps: FACTORY_POINT_NOTE + TRAPS_NOTE,
+  helpers: HELPERS_NOTE,
   object:
     "Objects (from getObjects(), findById or capture) list nothing: for (k in obj) is empty on " +
     "a working object, so this is the member list. id, type; name (writable string); " +
@@ -58,8 +145,8 @@ function factoryIndex(): string {
         "as createInput is called. Call this tool with a name for worked examples from " +
         "MoI's own scripts. Factories listed under handProbed have notes here because " +
         "MoI's scripts document them only indirectly. The names under reference are not " +
-        "factories: call this tool with one for notes on objects, edges and styles, whose " +
-        "members cannot be listed from a script.",
+        "factories: call this tool with one for the moi_eval helpers, MoI's host traps, and " +
+        "notes on objects, edges and styles, whose members cannot be listed from a script.",
     },
     null,
     2,
@@ -222,15 +309,16 @@ export const moiFactoryHelpTool: Tool<Args, unknown> = {
     "positional inputs, which are otherwise undocumented. Pass full:true for the " +
     "complete source when an index is passed as an argument rather than written " +
     "literally. With no name, lists all known factories and reports any that MoI's " +
-    "own scripts do not document. The names 'object', 'edge' and 'style' answer with " +
-    "notes on the object surface instead (members, edges, faces, styles), since host " +
-    "objects cannot list their own members.",
+    "own scripts do not document. The names 'helpers' and 'traps' answer with the moi_eval " +
+    "helper API and MoI's host traps; 'object', 'edge' and 'style' answer with notes on " +
+    "the object surface (members, edges, faces, styles), since host objects cannot list " +
+    "their own members.",
   input: {
     name: z
       .string()
       .optional()
       .describe(
-        "Factory name, e.g. 'loft', or 'object', 'edge' or 'style' for the object surface. " +
+        "Factory name, e.g. 'loft', or 'helpers', 'traps', 'object', 'edge' or 'style' for reference notes. " +
           "Omit to list every known factory.",
       ),
     full: z

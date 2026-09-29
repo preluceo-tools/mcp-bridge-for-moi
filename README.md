@@ -148,7 +148,7 @@ The other 103 are each committed with real inputs, and their output checked, by
 
 ### Factory quirks
 
-<!-- The same warning is FACTORY_POINT_NOTE in src/tools/moi-eval.ts, which the agent reads.
+<!-- The same warning is FACTORY_POINT_NOTE in src/tools/moi-factory-help.ts, which the agent reads.
      Reword one, reword both; a test checks they still name the same inputs. -->
 - **`cylinder` and `cone` need their end point, not the height.** Driven from a script they ignore
   `Height` unless `End pt` is set, and quietly give a flat circle instead of a solid. Check the

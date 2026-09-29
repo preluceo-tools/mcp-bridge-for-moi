@@ -1,76 +1,6 @@
 import { z } from "zod";
 import { asJson, DESTRUCTIVE, type Tool } from "../tool.js";
 
-const ES5_NOTE =
-  "MoI runs ECMAScript 5 only: no let/const, no arrow functions, no Promise, no fetch. " +
-  "Objects are addressed by their `id` — a brace-wrapped GUID — and resolved with " +
-  "moi.geometryDatabase.findObject( id ). An object's id changes whenever an operation " +
-  "consumes it (a move, a fillet and a boolean all produce new objects with new ids), so " +
-  "read the ids back out of the result rather than reusing the ones you sent.";
-
-/**
- * The README says the same thing to the user under "Factory quirks". Reword one, reword both;
- * a test checks they still name the same inputs.
- */
-export const FACTORY_POINT_NOTE =
-  "Some primitive factories need their point input, not the number: cylinder and cone " +
-  "ignore Height (input 5) unless End pt (input 4) is set, and give a flat circle " +
-  "instead of a solid, so check the output's type before using it in a boolean. ";
-
-/** MoI host behaviour the bridge cannot change, one bullet per trap. */
-const TRAPS_NOTE =
-  "\nMoI scripting traps:\n" +
-  [
-    "Undeclared globals (X = …) persist between calls; var declarations do not.",
-    "Host objects do not enumerate: learn an API from moi_factory_help (a factory name, or " +
-      "'object', 'edge' or 'style' for the object surface) or MoI's own command scripts (the " +
-      "commands folder of MoI's install folder), not by listing properties.",
-    "Pass object inputs to a factory as moi.geometryDatabase.createObjectList() plus addObject; " +
-      "with moi.createList() the factory commits nothing.",
-    "A factory's commit() return value means nothing either way: planarsrf returns falsy while " +
-      "succeeding. Count results by capture or a document diff.",
-    "getCreatedObjects() is empty after commit() for move, rotateaxis and polyline: use capture " +
-      "and read created[].id.",
-    "extrude and loft leave their profile curves in place (delete them); join consumes its inputs.",
-    "join over unconnected surfaces returns one object per connected group, so there is no need " +
-      "to group first, and the count of results is a (destructive) connectivity test.",
-    "Where a factory takes an object list, pass the whole list in one call: one planarsrf over " +
-      "2,830 curves took 2.2 s against 50.8 s for one call per curve, and a per-item loop slows " +
-      "as the document grows.",
-    "createFrame(origin, xAxis, yAxis) needs all three arguments; its normal (xAxis × yAxis) " +
-      "sets the direction of extrude and box, so a cutter extruded the wrong way misses the part " +
-      "(boolean() then warns).",
-    "box accepts a rotated frame, so an oriented box needs no separate rotate.",
-    "A fillet radius of half the height or more on a thin cylinder splits it into two objects.",
-    "A bare boolean factory leaves its results unnamed and may change their style; boolean() " +
-      "restores both.",
-    "Keep gaps of 0.5 mm or more between parallel faces: booleanintersection of solids about " +
-      "0.1 mm apart returns a bogus object instead of nothing.",
-    "To test two solids for intersection without consuming them, set up booleanintersection, " +
-      "call update(), read getCreatedObjects().length, then cancel(); filter pairs by bounding " +
-      "box first and run at most about 25 tests per call, since more runs past the timeout and " +
-      "blocks MoI.",
-    "getBoundingBox() on a NURBS curve (or a brep made from one) is the control-hull box; sample " +
-      "evaluatePoint(t) for the real extent.",
-    "rotateaxis by +θ then −θ restores parts to within about 3e-5 mm, keeping names and styles, " +
-      "so untilt, build, re-tilt is safe.",
-    "isClosed works on curves and edges but is undefined on a brep; a solid is closed when " +
-      "getNakedEdges().length === 0 (or use isSolidBRep).",
-    "obj.selected is writable per object and works while a selection lock is held.",
-    "Mesh data enters through moi.geometryDatabase.fileImportSubD(path). fileImport ignores a " +
-      "quad OBJ silently. fileImportSubD returns null even on success.",
-    "fileImportSubD imports all of a file or nothing: one bad component loses every other one. " +
-      "Check the object count afterwards; put independent pieces in separate files if a partial " +
-      "result is better than none.",
-    "moi.filesystem.openFileStream(path, 'r') reads; readLine() is the only reader and handles " +
-      "long lines. On a missing file it still returns a stream and readLine() returns '': check " +
-      "moi.filesystem.fileExists first.",
-    "moi.command.execCommand on a command with a UI returns normally and runs nothing; the " +
-      "command panel is out of a script's reach.",
-  ]
-    .map((t) => `- ${t}\n`)
-    .join("");
-
 /**
  * Snapshots the document's ids before the agent's script runs, so a script that throws partway
  * can say what it left behind: everything it committed before the throw stays. Only reported,
@@ -104,33 +34,23 @@ type Wrapped = { value: unknown; captures: number; warnings: { index: number; te
 export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
   name: "moi_eval",
   description:
-    "Run ES5 JavaScript inside the live MoI session against the `moi` API and return " +
-    "its value. This is the modelling surface: build geometry with factories — " +
-    "moi.command.createFactory('box'), setInput(i, value), update(), commit(). Call " +
-    "moi_factory_help(name) to learn any factory's input indices — they are positional " +
-    "and undocumented, so do not guess them. Wrap every commit in capture(function(){ … }): " +
-    "it returns { result, created, consumed }, where created describes the new objects and " +
-    "consumed lists the ids that are gone. MoI commits a factory that cannot do what it was " +
-    "asked — e.g. a fillet, chamfer or shell too large for the geometry — without any error " +
-    "and changes nothing; capture then adds a warning, which this tool's reply repeats after " +
-    "your result. Without capture there is no such check. Use `return` for your result; it must be " +
-    "JSON-serialisable. Helpers: capture(fn), toJson(obj), listToJson(list), pt(point), " +
-    "bbox(obj), faces(obj), edges(obj). faces/edges list an object's faces or edges as " +
-    "{ index, bbox } in getFaces()/getEdges() order; filter the rows yourself and get " +
-    "the item back with obj.getEdges().item(row.index), e.g. to chamfer it. " +
-    "For booleans use boolean(kind, targets, tools): kind is 'difference', 'union' or " +
-    "'intersection', targets and tools are ids or objects, one or an array (a union takes " +
-    "them all as targets). It runs the factory through capture and returns its record with " +
-    "every result in created, named and styled like the first target, and warns when a " +
-    "difference or union left the face count unchanged (the cutter most likely missed), a " +
-    "union left separate objects, or nothing was created. An empty intersection is not a warning. " +
-    "A live object has no isSolid (it reads undefined): test a closed solid with " +
-    "obj.isSolidBRep, or read toJson(obj).isSolid. Do not call moi.geometryDatabase.save() — this tool never saves the " +
-    "user's file. If the script throws, the error lists the ids of the objects it created " +
-    "or consumed before the throw: they stay in the document. " +
-    FACTORY_POINT_NOTE +
-    TRAPS_NOTE +
-    ES5_NOTE,
+    "Run ES5 JavaScript inside the live MoI session against the `moi` API and return its " +
+    "value. This is the modelling surface: build geometry with factories — " +
+    "moi.command.createFactory('box'), setInput(i, value), update(), commit(). Input indices " +
+    "are positional and undocumented: call moi_factory_help(name), never guess. Before scripting " +
+    "call moi_factory_help('helpers') for the helper API and moi_factory_help('traps') for " +
+    "MoI host traps. Wrap every commit in capture(function(){ … }): it returns " +
+    "{ result, created, consumed }. MoI commits a factory that cannot do what it was asked " +
+    "(e.g. an oversized fillet) without any error and changes nothing; capture then adds a " +
+    "warning, which this tool's reply repeats after your result. Without capture there is no " +
+    "such check. Use `return` for your result; it must be JSON-serialisable. Helpers: " +
+    "capture(fn), boolean(kind, targets, tools), toJson(obj), listToJson(list), pt(point), " +
+    "bbox(obj), faces(obj), edges(obj). ES5 only: no let/const, arrow functions, Promise or " +
+    "fetch. Objects are addressed by `id` (a brace-wrapped GUID); an id changes whenever an " +
+    "operation consumes the object, so read ids back from the result. Do not call " +
+    "moi.geometryDatabase.save() — this tool never saves the user's file. If the script " +
+    "throws, the error lists the ids it created or consumed before the throw: they stay in " +
+    "the document.",
   input: { script: z.string().describe("ES5 source. Use `return` to produce a value.") },
   direct: false,
   annotations: DESTRUCTIVE,

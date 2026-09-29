@@ -44,6 +44,18 @@ geometry). Each tool states its kind itself; it is never inferred from whether t
 direct or as a command, which is a separate question.
 _Avoid_: safety level, category, permission
 
+**Tool definition**:
+The name, description and input schema the agent is given for a tool. It is what the agent pays
+tokens for when a client loads the tool, whether or not the tool is ever called. Narrower than
+**Tool**, which also includes the script and the reply.
+_Avoid_: schema, prompt, docs
+
+**Reference note**:
+A topic `moi_factory_help` answers from the server without MoI — the moi_eval helpers, MoI's host
+traps, and the object, edge and style surface. Read on demand, so it costs tokens only in a session
+that asks for it, unlike a tool definition.
+_Avoid_: help text, reference
+
 ### Where the bridge lives
 
 **Host window**:

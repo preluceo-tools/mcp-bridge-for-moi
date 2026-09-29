@@ -10,6 +10,7 @@ import { setViewTool } from "./tools/set-view.js";
 import { FULL_SCENE_MAX, getSceneTool } from "./tools/get-scene.js";
 import { getSelectionTool } from "./tools/get-selection.js";
 import { moiEvalTool } from "./tools/moi-eval.js";
+import { REFERENCE } from "./tools/moi-factory-help.js";
 import { UNITS } from "./tools/set-units.js";
 import { A, B, C, fakeMoi, guid, ids, runScript, sceneOf, type ObjectSpec } from "./fake-moi.js";
 
@@ -256,9 +257,9 @@ test("moi_eval's description asks for capture around every commit, and no longer
   assert.doesNotMatch(moiEvalTool.description, /always works/);
 });
 
-test("moi_eval's description names isSolidBRep and says a live object has no isSolid", () => {
-  assert.match(moiEvalTool.description, /obj\.isSolidBRep/);
-  assert.match(moiEvalTool.description, /no isSolid \(it reads undefined\)/);
+test("moi_factory_help('helpers') names isSolidBRep and says a live object has no isSolid", () => {
+  assert.match(REFERENCE.helpers, /obj\.isSolidBRep/);
+  assert.match(REFERENCE.helpers, /no isSolid \(it reads undefined\)/);
 });
 
 /**
@@ -321,12 +322,12 @@ test("boolean intersection with no overlap is an answer, not a warning", () => {
   assert.match(reply.note, /do not overlap/);
 });
 
-test("moi_eval's description names the boolean helper and its kinds", () => {
-  assert.match(moiEvalTool.description, /boolean\(kind, targets, tools\): kind is 'difference', 'union' or 'intersection'/);
+test("moi_factory_help('helpers') names the boolean helper and its kinds", () => {
+  assert.match(REFERENCE.helpers, /boolean\(kind, targets, tools\): kind is 'difference', 'union' or 'intersection'/);
 });
 
-test("moi_eval's description lists the host traps once, with no machine path", () => {
-  const d = moiEvalTool.description;
+test("moi_factory_help('traps') lists the host traps once, with no machine path", () => {
+  const d = REFERENCE.traps;
   for (const trap of ["createObjectList()", "getBoundingBox()", "cancel()", "createFrame(origin, xAxis, yAxis)", "3e-5 mm",
     "means nothing either way", "fileImport ignores a quad OBJ", "all of a file or nothing", "obj.selected",
     "openFileStream(path, 'r')", "50.8 s", "one object per connected group", "execCommand", "getNakedEdges()"])
