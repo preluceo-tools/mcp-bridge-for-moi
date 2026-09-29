@@ -416,12 +416,12 @@ that asks for them.
 What a tool returns stays in the conversation and is sent again with every later request, like the
 definitions. Results come in three sizes:
 
-- **Small and fixed:** `get_selection`, `set_selection`, `set_units`, `set_viewport_layout`,
-  `delete_objects`.
+- **Small and fixed:** `get_selection`, `set_units`, `set_viewport_layout`.
 - **Bounded by the server or by the agent's own request:** `get_scene` lists only id, name and type
   once a document has more than 100 objects; `get_view` draws its picture at most 2,048 pixels on
-  the long edge (1,024 by default) and refuses an image over a size ceiling; `set_view` lists the
-  ids it did not find, so its reply grows with the request the agent sends, not with the scene.
+  the long edge (1,024 by default) and refuses an image over a size ceiling. `set_selection`,
+  `delete_objects` and `set_view` list the ids they did not find, so their replies grow with the
+  request the agent sends, not with the scene.
 - **Not bounded by the server:** `moi_eval` returns whatever the script returns; `moi_factory_help`
   with `full` returns the factory's whole source; `export_objects` replies are as large as what they
   report. A careless script can return a large result.
