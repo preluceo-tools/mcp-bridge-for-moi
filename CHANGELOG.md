@@ -6,13 +6,27 @@ What changed in each release of mcp-bridge-for-moi. Versions follow
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-29
+
+No bridge change in this release: updating the server is enough.
+
+### Added
+
+- `mcp-bridge-for-moi tokens` estimates the tokens each tool definition costs an agent, and the
+  total; `--json` prints the definitions as the server sends them. It needs no MoI session.
+- A test fails when the tool definitions together pass 15,600 characters, so their cost cannot
+  grow unnoticed.
+- The README has a Token use section: what the tool definitions cost in an agent's context, tool
+  by tool, and how to check it. A test keeps its table in step with the server.
+
 ### Changed
 
+- A `moi_eval` that fails with `moi_error` ends its reply with a line pointing to
+  `moi_factory_help('traps')`. Other failures and successful calls are unchanged.
 - `moi_eval`'s description now fits Claude Code's 2,048-character cap on tool descriptions (it was
   6,324 characters, so the traps and refusal notes at its end were cut off). The MoI scripting traps
   and the helper details moved to `moi_factory_help('traps')` and `moi_factory_help('helpers')`.
   A test keeps every tool description within the cap.
-
 
 ## [0.4.0] - 2026-09-26
 
