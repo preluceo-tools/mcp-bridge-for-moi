@@ -377,8 +377,10 @@ tool, and it takes room in the agent's context window. You pay for it when your 
 definition into the conversation, not per message you type; once loaded, it goes out again with
 every later request in that conversation, as the rest of the conversation does.
 
-**Worst case: about 3,900–4,400 tokens**, for a client that loads every tool definition when the
-session starts. Some clients load a definition only when the agent searches for the tool (e.g.
+**Worst case: an estimated 3,900–4,400 tokens**, for a client that loads every tool definition when
+the session starts. This is a character-based estimate, not a tokenizer count, and it may run low:
+with tool search off, Claude Code's `/context` showed about 5,700 tokens for these tools, by its
+own counting. Some clients load a definition only when the agent searches for the tool (e.g.
 Claude Code, whose [tool search](https://code.claude.com/docs/en/mcp) starts a session with the tool
 names only); there you may pay less, for the tools the agent actually uses. When any tool is
 present, the model provider also adds a tool-use system prompt of its own

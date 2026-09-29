@@ -50,6 +50,11 @@ tokens for when a client loads the tool, whether or not the tool is ever called.
 **Tool**, which also includes the script and the reply.
 _Avoid_: schema, prompt, docs
 
+**Estimated tokens**:
+A token figure worked out from characters at a fixed ratio, never from a tokenizer. Any figure
+labelled as an estimate is one; a client's own context view gives a different measure.
+_Avoid_: token count, cost
+
 **Reference note**:
 A topic `moi_factory_help` answers from the server without MoI — the moi_eval helpers, MoI's host
 traps, and the object, edge and style surface. Read on demand, so it costs tokens only in a session

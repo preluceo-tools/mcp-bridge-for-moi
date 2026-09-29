@@ -165,9 +165,21 @@ climbs, and `/usage` flags behaviors that account for 10% or more of recent usag
 | OpenTelemetry | `claude_code.token.usage` with `type` = `input`, `output`, `cacheRead`, `cacheCreation`; `claude_code.cost.usage`; per-tool-result `tool_result_size_bytes` and `tool_input_size_bytes` on the tool result event. Enable with `CLAUDE_CODE_ENABLE_TELEMETRY=1` plus an exporter | [OTEL](https://code.claude.com/docs/en/monitoring-usage) |
 | `claude -p "hello" --output-format json` | `usage.cache_creation` split into `ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens` | [CACHE-CC](https://code.claude.com/docs/en/prompt-caching#choose-the-ttl-yourself) |
 
-Whether `/context` lists deferred MCP tool names as a separate line item is **unconfirmed** from
-prose. The interactive context-window page does show an "MCP tools (deferred)" entry
-([context window](https://code.claude.com/docs/en/context-window)).
+**Confirmed in a live session (Claude Code, tool search on, 27 MCP tools connected):** `/context`
+lists the MCP tools as "MCP tools · /mcp (loaded on-demand)", a count and a small figure (27 tools,
+640 tokens): names only, not the definitions. The category line reads "MCP tools: 640 tokens", and
+the total stays low (37.5k of 1m). The interactive context-window page shows an "MCP tools
+(deferred)" entry too ([context window](https://code.claude.com/docs/en/context-window)).
+
+**Confirmed, tool search off (`ENABLE_TOOL_SEARCH=false`):** the same view lists "MCP tools · /mcp"
+with every definition loaded. With this server connected: 27 tools, 9.9k tokens. With the server
+disabled: 16 tools, 4.2k tokens. The difference for this server's 11 tools is about 5.7k tokens,
+above the README's 3,900–4,400 estimate; `/context` counts in its own way, so the README figure and
+this one are not the same measure.
+
+**`/mcp` tool view:** it cuts a long description for display (about 1,000 characters, then
+"[+N chars]"). `moi_eval`'s description is 1,716 characters and is sent whole; the cut is the view's,
+not the server's.
 
 ---
 
