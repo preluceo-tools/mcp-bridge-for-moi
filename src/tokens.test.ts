@@ -35,17 +35,18 @@ test("tokens prints one row per tool and a total, with the token ranges marked a
   assert.match(report, /estimates/);
 });
 
-test("the README's Token use table gives each tool's characters and estimated tokens as the server lists it", async () => {
-  const section = readmeSection("## Token use");
+type Defs = Awaited<ReturnType<typeof toolDefinitions>>;
+
+/** Asserts a Token use `section` matches `defs`; a tokens cell that is not one range fails as a wrong value, not a missing row. */
+function assertTokenTable(section: string, defs: Defs) {
   // README cells carry thousands commas and an en dash; the tokens subcommand prints neither.
   const plain = (cell = "") => cell.replace(/,/g, "").replace("–", "-");
   const table = new Map(
-    [...section.matchAll(/^\| `(\w+)` \| ([\d,]+) \| (\S+) \|/gm)].map(([, name, chars, tokens]) => [
+    [...section.matchAll(/^\| `(\w+)` \| ([\d,]+) \| ([^|]+?) \|/gm)].map(([, name, chars, tokens]) => [
       name,
       { chars: Number(plain(chars)), tokens: plain(tokens) },
     ]),
   );
-  const defs = await toolDefinitions();
   assert.deepEqual([...table.keys()].sort(), defs.map((d) => d.name).sort(), "README Token use table: tools");
   for (const d of defs) {
     const row = table.get(d.name);
@@ -54,9 +55,25 @@ test("the README's Token use table gives each tool's characters and estimated to
     assert.equal(row?.tokens, tokens, `README Token use table: ${d.name} is now ${tokens} estimated tokens`);
   }
   const total = totalSize(defs);
-  const listed = section.match(/^\| \*\*Total\*\* \| \*\*([\d,]+)\*\* \| \*\*(\S+)\*\* \|/m);
+  const listed = section.match(/^\| \*\*Total\*\* \| \*\*([\d,]+)\*\* \| \*\*([^|*]+?)\*\* \|/m);
   assert.equal(Number(plain(listed?.[1])), total, `README Token use table: the total is now ${total} characters`);
   assert.equal(plain(listed?.[2]), estimate(total), `README Token use table: the total is now ${estimate(total)} estimated tokens`);
+}
+
+test("the README's Token use table gives each tool's characters and estimated tokens as the server lists it", async () => {
+  assertTokenTable(readmeSection("## Token use"), await toolDefinitions());
+});
+
+test("a tokens cell with an inner space fails naming the tool and the range it should hold", async () => {
+  const defs = await toolDefinitions();
+  const section = readmeSection("## Token use");
+  const [lo, hi] = estimate(sizeOf(defs.find((d) => d.name === "set_units")!)).slice(1).split("-");
+  const cell = `~${lo}–${hi}`;
+  assert.ok(section.includes(cell), "fixture: set_units cell found in the README");
+  assert.throws(
+    () => assertTokenTable(section.replace(cell, `~${lo} – ${hi}`), defs),
+    (e: Error) => e.message.includes("set_units is now") && e.message.includes(`~${lo}-${hi}`),
+  );
 });
 
 test("all tool definitions together stay under the ceiling", async () => {
