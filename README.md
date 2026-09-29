@@ -44,6 +44,7 @@ It works in ***your*** MoI. It doesn't drive a hidden copy and it isn't a batch 
 - [Requirements](#requirements)
 - [Setup](#setup) · [Updating](#updating)
 - [Commands](#commands) — [On the command line](#on-the-command-line) · [What the agent can call](#what-the-agent-can-call)
+- [Token use](#token-use)
 - [Things the agent has to know](#things-the-agent-has-to-know) — [Error codes](#error-codes)
 - [The eval log](#the-eval-log)
 - [Version support](#version-support) · [Platforms](#platforms)
@@ -333,6 +334,7 @@ Code).
 | `npm run e2e` | Builds, then drives a running MoI through every tool once and reports pass or fail per step. Use an empty document; it builds one box, exports it to a temporary folder that it removes afterwards, and deletes the box again. On a document with no unit system it sets millimeters for the run and removes them again at the end. It never saves or closes MoI. **Close your AI client first** — only one server can serve MoI at a time, so while your client's server runs the test stops at once with `[server_conflict]` and names it. Restart the client afterwards. If no MoI connects within 90 seconds it fails and says so. |
 | `npm run e2e:factories` | Builds, then runs every factory MoI has, one at a time: it builds what the factory needs, commits it, checks what it made, and checks that MoI still answers. The factories a script can't drive (see [Limitations](#limitations)) are skipped with their reason. Prints one `PASS`, `FAIL` or `SKIP` line per factory and the counts. It refuses to start unless the document is empty, deletes anything a factory leaves behind, and never saves or closes MoI. **Close your AI client first**, as for `npm run e2e`. |
 | `node dist/cli.js install` | Copies the bridge into MoI's startup folder. Run it again after every update. |
+| `node dist/cli.js tokens` | Prints the size of each tool definition in characters and estimated tokens, and the total (see [Token use](#token-use)). With `--json` it prints the tool definitions themselves, for a token-counting service. Needs no network, no MoI and no API key. |
 | `node dist/cli.js` | Starts the server. You normally never type this: your AI client runs it from its configuration. |
 
 ### What the agent can call
@@ -364,6 +366,91 @@ asking and ask you before a destructive one.
 | `set_view` | *changing* | Points one of your viewports at chosen objects, the selection, or the whole scene, optionally from a named angle. If none of the objects named exist, the call is refused and nothing moves; if only some exist, those are framed and the rest are listed. |
 | `set_viewport_layout` | *changing* | Switches MoI between the four-viewport layout and a single viewport. |
 | `export_objects` | *writes a file* | Writes chosen objects, or the whole scene, to a new file in any format MoI exports (e.g. STEP, OBJ, STL), picked by the extension. It never opens a dialog, never overwrites an existing file, and doesn't write `.3dm` or `.dwg` (use `.dxf`) or into a folder that doesn't exist. Your open document, its name and your selection are left as they were. A mesh format (e.g. OBJ, STL, FBX) takes the full set of mesh settings and leaves them in MoI's mesh dialog (see [Limitations](#limitations)). |
+
+---
+
+## Token use
+
+Every tool the server offers comes with a **tool definition**: its name, its description and the
+schema of its arguments. The definition is what the agent reads to decide when and how to call the
+tool, and it takes room in the agent's context window. You pay for it when your AI client loads the
+definition into the conversation, not per message you type; once loaded, it goes out again with
+every later request in that conversation, as the rest of the conversation does.
+
+**Worst case: about 3,900–4,400 tokens**, for a client that loads every tool definition when the
+session starts. Some clients load a definition only when the agent searches for the tool (e.g.
+Claude Code, whose [tool search](https://code.claude.com/docs/en/mcp) starts a session with the tool
+names only); there you may pay less, for the tools the agent actually uses. When any tool is
+present, the model provider also adds a tool-use system prompt of its own
+([tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview)).
+
+The server sends no `instructions` (the optional text an MCP server can have loaded into every
+session), so nothing beyond the tool definitions is loaded on its behalf.
+
+| Tool | Characters | Estimated tokens |
+|---|---|---|
+| `moi_eval` | 1,990 | ~498–569 |
+| `set_units` | 958 | ~240–274 |
+| `get_scene` | 625 | ~156–179 |
+| `get_selection` | 347 | ~87–99 |
+| `set_selection` | 544 | ~136–155 |
+| `delete_objects` | 546 | ~137–156 |
+| `export_objects` | 3,163 | ~791–904 |
+| `get_view` | 3,107 | ~777–888 |
+| `set_view` | 2,069 | ~517–591 |
+| `set_viewport_layout` | 953 | ~238–272 |
+| `moi_factory_help` | 1,231 | ~308–352 |
+| **Total** | **15,533** | **~3,883–4,438** |
+
+Characters are those of each definition as JSON, exactly as the server lists it. The token figures
+are **estimates**, at 3.5 to 4 characters per token; tokenizers differ between models, so count
+them (below) if you need the exact figure. `node dist/cli.js tokens` prints the same table for the
+copy you have installed.
+
+The long notes an agent needs only now and then (e.g. `moi_factory_help('traps')`,
+`moi_factory_help('helpers')`) are not part of any definition: they cost tokens only in a session
+that asks for them.
+
+### What results cost
+
+What a tool returns stays in the conversation and is sent again with every later request, like the
+definitions. Results come in three sizes:
+
+- **Small and fixed:** `get_selection`, `set_selection`, `set_units`, `set_view`,
+  `set_viewport_layout`, `delete_objects`.
+- **Bounded by the server:** `get_scene` lists only id, name and type once a document has more than
+  100 objects; `get_view` draws its picture at most 2,048 pixels on the long edge (1,024 by
+  default) and refuses an image over a size ceiling.
+- **Not bounded by the server:** `moi_eval` returns whatever the script returns; `moi_factory_help`
+  with `full` returns the factory's whole source; `export_objects` replies are as large as what they
+  report. A careless script can return a large result.
+
+Your client may warn about or cut off a large result; for Claude Code, see
+[MCP output limits](https://code.claude.com/docs/en/mcp).
+
+### Measuring it in your own project
+
+1. **With and without the server.** Start a fresh session with the server connected and look at
+   your client's context view (e.g. `/context` in Claude Code); then disable the server (e.g.
+   `/mcp`) and look again. In Claude Code, setting `ENABLE_TOOL_SEARCH=false` loads every
+   definition at the start, which shows the worst case above
+   ([MCP](https://code.claude.com/docs/en/mcp)).
+2. **Usage.** Run a typical task and read your client's usage view (e.g. `/usage` in Claude Code),
+   which splits input, output, cache reads and cache writes. Any dollar figure it shows is an
+   estimate at list price, not a bill; on a subscription it is not what you are billed
+   ([costs](https://code.claude.com/docs/en/costs)).
+3. **Exact definition size.** Save the output of `node dist/cli.js tokens --json` and send it as
+   the `tools` of a request to a token-counting service (e.g. Anthropic's
+   [token counting](https://platform.claude.com/docs/en/build-with-claude/token-counting)), renaming
+   each `inputSchema` to `input_schema`, with the model you use. Count once with the tools and once
+   without; the difference is what the definitions cost. This needs your own API key.
+4. **Result sizes.** Your client's telemetry may report the size of each tool result (e.g. Claude
+   Code's `tool_result_size_bytes`, with `CLAUDE_CODE_ENABLE_TELEMETRY=1` and an exporter;
+   [monitoring](https://code.claude.com/docs/en/monitoring-usage)).
+
+A definition that stays loaded is mostly read back from the provider's prompt cache, which is
+priced differently from fresh input; the provider publishes the multipliers
+([prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)).
 
 ---
 
@@ -415,7 +502,7 @@ A refused or failed call starts with its code in brackets, e.g. `[no_units]`:
 | `server_conflict` | Another copy of the server is already serving MoI. |
 | `timeout` | MoI didn't answer in time. If the message says the script never started, nothing changed. If it says the script started, it may still finish and change the document: check the scene before running it again. |
 | `script_error` | The script the agent sent threw an error inside MoI. |
-| `moi_error` | MoI reported a failure, or answered something the server couldn't use. |
+| `moi_error` | MoI reported a failure, or answered something the server couldn't use. On `moi_eval` the message ends by pointing the agent to `moi_factory_help('traps')`, the notes on MoI's scripting traps. |
 | `not_found` | Something the call needed wasn't there, e.g. none of the ids given to `export_objects` exist. |
 
 A missing or unknown argument, such as a missing or misspelled `layout` for
