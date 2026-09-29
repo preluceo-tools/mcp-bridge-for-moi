@@ -377,10 +377,9 @@ tool, and it takes room in the agent's context window. You pay for it when your 
 definition into the conversation, not per message you type; once loaded, it goes out again with
 every later request in that conversation, as the rest of the conversation does.
 
-**Worst case: an estimated 3,900–4,400 tokens**, for a client that loads every tool definition when
-the session starts. This is a character-based estimate, not a tokenizer count, and it may run low:
-with tool search off, Claude Code's `/context` showed about 5,700 tokens for these tools, by its
-own counting. Some clients load a definition only when the agent searches for the tool (e.g.
+**When every tool definition loads up front: an estimated 3,900–4,400 tokens.** This is a
+character-based estimate, not a tokenizer count, and it may run low: with tool search off, Claude
+Code's `/context` showed about 5,700 tokens for this server's tools, by its own counting. Some clients load a definition only when the agent searches for the tool (e.g.
 Claude Code, whose [tool search](https://code.claude.com/docs/en/mcp) starts a session with the tool
 names only); there you may pay less, for the tools the agent actually uses. When any tool is
 present, the model provider also adds a tool-use system prompt of its own
@@ -438,7 +437,7 @@ Your client may warn about or cut off a large result; for Claude Code, see
 1. **With and without the server.** Start a fresh session with the server connected and look at
    your client's context view (e.g. `/context` in Claude Code); then disable the server (e.g.
    `/mcp`) and look again. In Claude Code, setting `ENABLE_TOOL_SEARCH=false` loads every
-   definition at the start, which shows the worst case above
+   definition at the start, which shows the every-definition-up-front figure above
    ([MCP](https://code.claude.com/docs/en/mcp)).
 2. **Usage.** Run a typical task and read your client's usage view (e.g. `/usage` in Claude Code),
    which splits input, output, cache reads and cache writes. Any dollar figure it shows is an
