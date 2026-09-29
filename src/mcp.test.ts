@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 
-const { SessionHost, BridgeError } = await import("./session.js");
-const { fakeMoi, runScript } = await import("./fake-moi.js");
+const { SessionHost } = await import("./session.js");
+const { fakeMoi, hostOn, readmeSection } = await import("./fake-moi.js");
 const { LAYOUTS } = await import("./scripts.js");
 const { buildServer, TOOLS, descriptionOf } = await import("./index.js");
 const { NO_UNITS_NOTE, NO_UNITS } = await import("./tools/set-units.js");
@@ -100,7 +100,7 @@ test("the README's Kind column names the annotation constant each tool declares"
     "writes a file": WRITES_FILE,
     destructive: DESTRUCTIVE,
   };
-  const section = README.split("### What the agent can call")[1].split("\n---")[0];
+  const section = readmeSection("### What the agent can call");
   const rows = [...section.matchAll(/^\| `(\w+)` \| ([^|]+) \|/gm)].map(([, name, kind]) => [name, kind.replace(/\*/g, "").trim()]);
   const listed = rows.filter(([name]) => TOOLS.some((t) => t.name === name));
   assert.deepEqual(listed.map(([name]) => name).sort(), TOOLS.map((t) => t.name).sort(), "README tool table");
@@ -239,17 +239,8 @@ for (const [name, marker] of [
 
 // A client on a server whose bridge runs scripts against the fake moi, or refuses with `refuse`.
 async function clientOn(fake: ReturnType<typeof fakeMoi>, refuse?: "command_running") {
-  const bridge = {
-    call: async ({ script, needsUnits }: { script: string; needsUnits?: boolean }) => {
-      if (refuse) throw new BridgeError(refuse, "refused");
-      if (needsUnits && fake.moi.geometryDatabase.units === NO_UNITS) throw new BridgeError("no_units", "no units");
-      return runScript(script, fake.moi);
-    },
-    ensureOwner: async () => {},
-    setClient: () => {},
-  } as unknown as InstanceType<typeof SessionHost>;
   const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
-  await buildServer(bridge).connect(serverSide);
+  await buildServer(hostOn(fake.moi, refuse)).connect(serverSide);
   const c = new Client({ name: "mcp-test", version: "0" });
   await c.connect(clientSide);
   return c;

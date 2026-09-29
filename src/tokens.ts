@@ -33,6 +33,9 @@ export const TOOL_DEFINITIONS_CEILING = 15_600;
 /** Characters of one definition, as its JSON. */
 export const sizeOf = (d: ToolDefinition) => JSON.stringify(d).length;
 
+/** Characters of all definitions together. */
+export const totalSize = (defs: ToolDefinition[]) => defs.reduce((sum, d) => sum + sizeOf(d), 0);
+
 /** Tokens are estimated at 3.5 to 4 characters each; no tokenizer is consulted. */
 export const estimate = (chars: number) => `~${Math.round(chars / 4)}-${Math.round(chars / 3.5)}`;
 
@@ -43,7 +46,7 @@ export async function tokensReport(json = false): Promise<string> {
   const width = Math.max(...defs.map((d) => d.name.length), "total".length);
   const row = (name: string, chars: number) =>
     `${name.padEnd(width)}  ${String(chars).padStart(6)}  ${estimate(chars).padStart(12)}`;
-  const total = defs.reduce((sum, d) => sum + sizeOf(d), 0);
+  const total = totalSize(defs);
   return [
     `${"tool".padEnd(width)}  ${"chars".padStart(6)}  ${"est. tokens".padStart(12)}`,
     ...defs.map((d) => row(d.name, sizeOf(d))),

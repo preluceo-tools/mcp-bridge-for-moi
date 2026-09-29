@@ -20,6 +20,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { TestContext } from "node:test";
+import { BridgeError, type SessionHost } from "./session.js";
+import { NO_UNITS } from "./tools/set-units.js";
 
 /** The shipped bridge, `assets/bridge.js`. */
 export const BRIDGE_PATH = join(dirname(fileURLToPath(import.meta.url)), "..", "assets", "bridge.js");
@@ -46,6 +48,28 @@ export const ids = (objects: { id: string }[]) => objects.map((o) => o.id);
 /** Runs `script` the way the bridge does: `new Function( 'moi', PRELUDE + '\n' + script )`. */
 export const runScript = (script: string, moi: unknown): any =>
   new Function("moi", `${prelude()}\n${script}`)(moi);
+
+/**
+ * A host whose bridge runs each script against `moi`, the way the real one runs it in MoI, and
+ * refuses a `needsUnits` call on a unitless document as the real one does (tested in bridge.test).
+ * With `refuse`, it refuses every call with that code instead.
+ */
+export const hostOn = (moi: any, refuse?: "command_running") =>
+  ({
+    call: async ({ script, needsUnits }: { script: string; needsUnits?: boolean }) => {
+      if (refuse) throw new BridgeError(refuse, "refused");
+      if (needsUnits && moi.geometryDatabase.units === NO_UNITS) throw new BridgeError("no_units", "no units");
+      return runScript(script, moi);
+    },
+    ensureOwner: async () => {},
+    setClient: () => {},
+  }) as unknown as SessionHost;
+
+/** The README's text under the heading line `heading` (e.g. "## Token use"), up to the next heading. */
+export const readmeSection = (heading: string) =>
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "README.md"), "utf8")
+    .split(`\n${heading}`)[1]
+    .split("\n#")[0];
 
 /** A real-looking object id, brace-wrapped. `guid(0)` is the all-zero id MoI refuses. */
 export const guid = (n: number) => `{00000000-0000-0000-0000-${n.toString(16).padStart(12, "0")}}`;

@@ -3,25 +3,11 @@ import assert from "node:assert/strict";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runTool, TOOLS } from "./index.js";
-import { fakeMoi, guid, ids, runScript } from "./fake-moi.js";
-import { BridgeError, type SessionHost } from "./session.js";
+import { fakeMoi, guid, hostOn, ids, runScript } from "./fake-moi.js";
 import type { Tool } from "./tool.js";
 import { moiEvalTool } from "./tools/moi-eval.js";
 import { exportObjectsTool } from "./tools/export-objects.js";
 import { NO_UNITS, setUnitsTool, UNITS } from "./tools/set-units.js";
-
-/**
- * A host whose bridge runs each script against `moi`, the way the real one runs it in MoI, and
- * refuses a `needsUnits` call on a unitless document as the real one does (tested in bridge.test).
- */
-const hostOn = (moi: any) =>
-  ({
-    call: async ({ script, needsUnits }: { script: string; needsUnits?: boolean }) => {
-      if (needsUnits && moi.geometryDatabase.units === NO_UNITS) throw new BridgeError("no_units", "no units");
-      return runScript(script, moi);
-    },
-    ensureOwner: async () => {},
-  }) as unknown as SessionHost;
 
 test("a moi_eval script that returns the bridge's old no-units shape gets its value back", async () => {
   const r = await runTool(hostOn(fakeMoi().moi), moiEvalTool, { script: "return { __moiMcpNoUnits: true };" });

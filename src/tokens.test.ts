@@ -1,12 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { SessionHost } from "./session.js";
 import { buildServer, TOOLS } from "./index.js";
-import { toolDefinitions, tokensReport, sizeOf, estimate, TOOL_DEFINITIONS_CEILING } from "./tokens.js";
+import { readmeSection } from "./fake-moi.js";
+import { toolDefinitions, tokensReport, sizeOf, totalSize, estimate, TOOL_DEFINITIONS_CEILING } from "./tokens.js";
 
 test("tokens --json prints the tools, names, descriptions and schemas the server lists", async () => {
   const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
@@ -31,14 +30,13 @@ test("tokens prints one row per tool and a total, with the token ranges marked a
     assert.match(row, new RegExp(` ${sizeOf(d)} +~\\d+-\\d+$`), `${d.name} row`);
   }
   assert.equal(defs.length, TOOLS.length);
-  const total = defs.reduce((s, d) => s + sizeOf(d), 0);
+  const total = totalSize(defs);
   assert.match(report, new RegExp(`^total +${total} +~\\d+-\\d+$`, "m"));
   assert.match(report, /estimates/);
 });
 
 test("the README's Token use table gives each tool's characters and estimated tokens as the server lists it", async () => {
-  const readme = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf8");
-  const section = readme.split("\n## Token use")[1].split("\n### ")[0];
+  const section = readmeSection("## Token use");
   // README cells carry thousands commas and an en dash; the tokens subcommand prints neither.
   const plain = (cell = "") => cell.replace(/,/g, "").replace("–", "-");
   const table = new Map(
@@ -55,14 +53,14 @@ test("the README's Token use table gives each tool's characters and estimated to
     const tokens = estimate(sizeOf(d));
     assert.equal(row?.tokens, tokens, `README Token use table: ${d.name} is now ${tokens} estimated tokens`);
   }
-  const total = defs.reduce((s, d) => s + sizeOf(d), 0);
+  const total = totalSize(defs);
   const listed = section.match(/^\| \*\*Total\*\* \| \*\*([\d,]+)\*\* \| \*\*(\S+)\*\* \|/m);
   assert.equal(Number(plain(listed?.[1])), total, `README Token use table: the total is now ${total} characters`);
   assert.equal(plain(listed?.[2]), estimate(total), `README Token use table: the total is now ${estimate(total)} estimated tokens`);
 });
 
 test("all tool definitions together stay under the ceiling", async () => {
-  const total = (await toolDefinitions()).reduce((s, d) => s + sizeOf(d), 0);
+  const total = totalSize(await toolDefinitions());
   assert.ok(
     total <= TOOL_DEFINITIONS_CEILING,
     `The tool definitions total ${total} characters, over TOOL_DEFINITIONS_CEILING (${TOOL_DEFINITIONS_CEILING}). ` +
