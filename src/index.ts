@@ -89,6 +89,7 @@ export async function runTool<Args, Reply>(
       message: e.message,
       ms: Date.now() - started,
     });
+    if (e.code === "moi_error" && tool.failureNote) e = new BridgeError("moi_error", `${e.message}\n${tool.failureNote}`);
     return failure(e);
   }
 }

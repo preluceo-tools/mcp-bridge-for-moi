@@ -47,6 +47,8 @@ export type Tool<Args, Reply> = {
   /** An answer that needs no MoI; `undefined` goes on to the bridge. */
   local?(args: Args): Content[] | undefined;
   script(args: Args): string;
+  /** A line ending the reply when the call fails with `moi_error`, and only then. */
+  failureNote?: string;
   /** Throws `BridgeError` to fail. Omitted means `asJson`. */
   reply?(value: Reply, args: Args): Content[];
 };

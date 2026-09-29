@@ -63,6 +63,7 @@ export const moiEvalTool: Tool<{ script: string }, Wrapped> = {
     "catch ( e ) { throw __moiMcpLeftovers( e ); }\n" +
     "return { value: ( __moiMcpValue === undefined ? null : __moiMcpValue ), " +
     "captures: __moiMcpCaptures.count, warnings: __moiMcpCaptures.warnings };",
+  failureNote: "If a MoI host trap may be the cause, moi_factory_help('traps') lists them.",
   reply: ({ value, captures, warnings }, { script }) => {
     const content = asJson(value);
     // A word check, not a parse: a `return` anywhere, even in a nested function, suppresses it.

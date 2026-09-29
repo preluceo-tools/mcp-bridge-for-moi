@@ -6,10 +6,11 @@ import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 
-const { SessionHost } = await import("./session.js");
+const { SessionHost, BridgeError } = await import("./session.js");
+const { fakeMoi, runScript } = await import("./fake-moi.js");
 const { LAYOUTS } = await import("./scripts.js");
 const { buildServer, TOOLS, descriptionOf } = await import("./index.js");
-const { NO_UNITS_NOTE } = await import("./tools/set-units.js");
+const { NO_UNITS_NOTE, NO_UNITS } = await import("./tools/set-units.js");
 const { FACTORY_POINT_NOTE, REFERENCE } = await import("./tools/moi-factory-help.js");
 const { READ_ONLY, CHANGING, WRITES_FILE, DESTRUCTIVE } = await import("./tool.js");
 const README = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf8");
@@ -234,6 +235,52 @@ for (const [name, marker] of [
     assert.match(text(r), marker);
   });
 }
+
+// A client on a server whose bridge runs scripts against the fake moi, or refuses with `refuse`.
+async function clientOn(fake: ReturnType<typeof fakeMoi>, refuse?: "command_running") {
+  const bridge = {
+    call: async ({ script, needsUnits }: { script: string; needsUnits?: boolean }) => {
+      if (refuse) throw new BridgeError(refuse, "refused");
+      if (needsUnits && fake.moi.geometryDatabase.units === NO_UNITS) throw new BridgeError("no_units", "no units");
+      return runScript(script, fake.moi);
+    },
+    ensureOwner: async () => {},
+    setClient: () => {},
+  } as unknown as InstanceType<typeof SessionHost>;
+  const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+  await buildServer(bridge).connect(serverSide);
+  const c = new Client({ name: "mcp-test", version: "0" });
+  await c.connect(clientSide);
+  return c;
+}
+
+test("a failed moi_eval ends with the pointer to the traps note; success and other codes do not", async () => {
+  const pointer = "moi_factory_help('traps')";
+  const evalOn = async (fake: ReturnType<typeof fakeMoi>, script: string, refuse?: "command_running") => {
+    const c = await clientOn(fake, refuse);
+    try {
+      return (await c.callTool({ name: "moi_eval", arguments: { script } })) as Reply;
+    } finally {
+      await c.close();
+    }
+  };
+  const failed = await evalOn(fakeMoi(), "throw new Error('deliberate');");
+  assert.equal(failed.isError, true);
+  assert.match(text(failed), /^\[moi_error\] .*deliberate/);
+  assert.ok(text(failed).trimEnd().split("\n").at(-1)!.includes(pointer), text(failed));
+
+  const ok = await evalOn(fakeMoi(), "return 1;");
+  assert.notEqual(ok.isError, true, text(ok));
+  assert.ok(!text(ok).includes(pointer));
+
+  const unitless = await evalOn(fakeMoi({ units: NO_UNITS }), "return 1;");
+  assert.match(text(unitless), /^\[no_units\]/);
+  assert.ok(!text(unitless).includes(pointer));
+
+  const running = await evalOn(fakeMoi(), "return 1;", "command_running");
+  assert.match(text(running), /^\[command_running\]/);
+  assert.ok(!text(running).includes(pointer));
+});
 
 for (const [name, args] of [
   ["moi_eval", { script: "return 1;" }],
