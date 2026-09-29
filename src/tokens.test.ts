@@ -6,7 +6,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { SessionHost } from "./session.js";
 import { buildServer, TOOLS } from "./index.js";
-import { toolDefinitions, tokensReport, sizeOf, TOOL_DEFINITIONS_CEILING } from "./tokens.js";
+import { toolDefinitions, tokensReport, sizeOf, estimate, TOOL_DEFINITIONS_CEILING } from "./tokens.js";
 
 test("tokens --json prints the tools, names, descriptions and schemas the server lists", async () => {
   const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
@@ -36,19 +36,29 @@ test("tokens prints one row per tool and a total, with the token ranges marked a
   assert.match(report, /estimates/);
 });
 
-test("the README's Token use table gives each tool's characters as the server lists it", async () => {
+test("the README's Token use table gives each tool's characters and estimated tokens as the server lists it", async () => {
   const readme = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf8");
   const section = readme.split("\n## Token use")[1].split("\n### ")[0];
+  // README cells carry thousands commas and an en dash; the tokens subcommand prints neither.
+  const plain = (cell = "") => cell.replace(/,/g, "").replace("–", "-");
   const table = new Map(
-    [...section.matchAll(/^\| `(\w+)` \| ([\d,]+) \|/gm)].map(([, name, chars]) => [name, Number(chars.replace(/,/g, ""))]),
+    [...section.matchAll(/^\| `(\w+)` \| ([\d,]+) \| (\S+) \|/gm)].map(([, name, chars, tokens]) => [
+      name,
+      { chars: Number(plain(chars)), tokens: plain(tokens) },
+    ]),
   );
   const defs = await toolDefinitions();
   assert.deepEqual([...table.keys()].sort(), defs.map((d) => d.name).sort(), "README Token use table: tools");
-  for (const d of defs)
-    assert.equal(table.get(d.name), sizeOf(d), `README Token use table: ${d.name} is now ${sizeOf(d)} characters`);
+  for (const d of defs) {
+    const row = table.get(d.name);
+    assert.equal(row?.chars, sizeOf(d), `README Token use table: ${d.name} is now ${sizeOf(d)} characters`);
+    const tokens = estimate(sizeOf(d));
+    assert.equal(row?.tokens, tokens, `README Token use table: ${d.name} is now ${tokens} estimated tokens`);
+  }
   const total = defs.reduce((s, d) => s + sizeOf(d), 0);
-  const listed = section.match(/^\| \*\*Total\*\* \| \*\*([\d,]+)\*\* \|/m)?.[1];
-  assert.equal(Number(listed?.replace(/,/g, "")), total, `README Token use table: the total is now ${total} characters`);
+  const listed = section.match(/^\| \*\*Total\*\* \| \*\*([\d,]+)\*\* \| \*\*(\S+)\*\* \|/m);
+  assert.equal(Number(plain(listed?.[1])), total, `README Token use table: the total is now ${total} characters`);
+  assert.equal(plain(listed?.[2]), estimate(total), `README Token use table: the total is now ${estimate(total)} estimated tokens`);
 });
 
 test("all tool definitions together stay under the ceiling", async () => {

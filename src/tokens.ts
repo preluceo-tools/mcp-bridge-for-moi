@@ -34,7 +34,7 @@ export const TOOL_DEFINITIONS_CEILING = 15_600;
 export const sizeOf = (d: ToolDefinition) => JSON.stringify(d).length;
 
 /** Tokens are estimated at 3.5 to 4 characters each; no tokenizer is consulted. */
-const estimate = (chars: number) => `~${Math.round(chars / 4)}-${Math.round(chars / 3.5)}`;
+export const estimate = (chars: number) => `~${Math.round(chars / 4)}-${Math.round(chars / 3.5)}`;
 
 /** The `tokens` subcommand's output: a table of characters and estimated tokens, or with `json` the raw definitions. */
 export async function tokensReport(json = false): Promise<string> {

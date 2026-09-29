@@ -407,7 +407,7 @@ are **estimates**, at 3.5 to 4 characters per token; tokenizers differ between m
 them (below) if you need the exact figure. `node dist/cli.js tokens` prints the same table for the
 copy you have installed.
 
-The long notes an agent needs only now and then (e.g. `moi_factory_help('traps')`,
+The **reference notes** (e.g. `moi_factory_help('traps')`,
 `moi_factory_help('helpers')`) are not part of any definition: they cost tokens only in a session
 that asks for them.
 
@@ -416,11 +416,12 @@ that asks for them.
 What a tool returns stays in the conversation and is sent again with every later request, like the
 definitions. Results come in three sizes:
 
-- **Small and fixed:** `get_selection`, `set_selection`, `set_units`, `set_view`,
-  `set_viewport_layout`, `delete_objects`.
-- **Bounded by the server:** `get_scene` lists only id, name and type once a document has more than
-  100 objects; `get_view` draws its picture at most 2,048 pixels on the long edge (1,024 by
-  default) and refuses an image over a size ceiling.
+- **Small and fixed:** `get_selection`, `set_selection`, `set_units`, `set_viewport_layout`,
+  `delete_objects`.
+- **Bounded by the server or by the agent's own request:** `get_scene` lists only id, name and type
+  once a document has more than 100 objects; `get_view` draws its picture at most 2,048 pixels on
+  the long edge (1,024 by default) and refuses an image over a size ceiling; `set_view` lists the
+  ids it did not find, so its reply grows with the request the agent sends, not with the scene.
 - **Not bounded by the server:** `moi_eval` returns whatever the script returns; `moi_factory_help`
   with `full` returns the factory's whole source; `export_objects` replies are as large as what they
   report. A careless script can return a large result.
