@@ -4,6 +4,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { moiStartupDir } from "./paths.js";
 import { serve } from "./index.js";
+import { tokensReport } from "./tokens.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const BRIDGE_SOURCE = join(here, "..", "assets", "bridge.js");
@@ -34,9 +35,11 @@ const command = process.argv[2];
 
 if (command === "install") {
   install();
+} else if (command === "tokens") {
+  console.log(await tokensReport(process.argv.includes("--json")));
 } else if (!command || command === "serve") {
   void serve();
 } else {
-  console.error(`Unknown command: ${command}\n\nUsage:\n  node dist/cli.js          start the MCP server (stdio)\n  node dist/cli.js install  install the bridge into MoI's startup folder`);
+  console.error(`Unknown command: ${command}\n\nUsage:\n  node dist/cli.js          start the MCP server (stdio)\n  node dist/cli.js install  install the bridge into MoI's startup folder\n  node dist/cli.js tokens   estimate the tokens the tool definitions cost (--json: print them raw)`);
   process.exit(1);
 }
